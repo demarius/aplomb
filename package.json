@@ -1,0 +1,23 @@
+{
+  "name": "aplomb",
+  "description": "configurable scheduling and balancing for Node.js.",
+  "author": "Demarius Chrite",
+  "version": "0.0.0",
+  "main": "aplomb.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/demarius/aplomb.git"
+  },
+  "dependencies": {
+    "cadence": "0.4.1",
+    "delta":   "0.0.4"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/demarius/aplomb/issues"
+  },
+  "homepage": "https://github.com/demarius/aplomb#readme"
+}
