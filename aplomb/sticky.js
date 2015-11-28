@@ -7,11 +7,16 @@ function Scheduler (options) {
     this._agent = new Vizsla
 }
 
-Scheduler.prototype.addEndpoint = cadence(function (async, url) {
+Scheduler.prototype.addEndpoint = cadence(function (async, url, health, mock) {
     async(function () {
-        //Scheduler.health(url, async())
+        if (arguments.length > 2) {
+            this._agent.fetch({
+                url: health
+                post: mock
+            }, async())
+        }
     }, function () {
-        // add to _endpoints
+        this._endpoints.healthy.push(url)
     })
 })
 
