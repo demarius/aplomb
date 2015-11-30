@@ -2,24 +2,24 @@ var cadence = require('cadence')
 var Vizsla = require('vizsla')
 
 function Scheduler (options) {
-    this._endpoints = {
-        healthy: {},
-        spotty: {},
-        failed: {}
-    }
+    this._endpoints = {}
     this._endpoints = options.endpoints
     this._agent = new Vizsla
 }
 
-Scheduler.prototype.addEndpoint = cadence(function (async, url, health, mock) {
+Scheduler.prototype.addEndpoint = cadence(function (async, url, health) {
     async(function () {
-        this._agent.fetch({
-            url: health
-            post: mock
-        }, async())
+        if (typeof health == 'function') {
+            health(async())
+        } else {
+            this._agent.fetch({
+                url: url,
+                post: health
+            }, async())
+        }
     }
     }, function () {
-        this._endpoints.healthy[url] = { health: health, mock: mock }
+        this._endpoints[url] = { health: health, mock: mock }
     })
 })
 
@@ -29,5 +29,5 @@ Scheduler.prototype.checkEndpoints = cadence(function (async) {
 })
 
 Scheduler.prototype.health = cadence(function (async, url) {
-    // test an endpoint
+    // test
 })
