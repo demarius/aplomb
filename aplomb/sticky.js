@@ -17,7 +17,6 @@ Scheduler.prototype.addEndpoint = cadence(function (async, url, health) {
                 post: health
             }, async())
         }
-    }
     }, function () {
         this._endpoints[url] = { health: health, mock: mock }
     })
