@@ -8,17 +8,17 @@ function Scheduler (options) {
 }
 
 Scheduler.prototype.addEndpoint = cadence(function (async, url, health) {
+    // Not checking if URL exists, just reset.
     async(function () {
-        if (typeof health == 'function') {
-            health(async())
-        } else {
-            this._agent.fetch({
-                url: url,
-                post: health
-            }, async())
+        this._endpoints[url] = {
+            health: health,
+            mock: mock,
+            status: {
+                healthy: [ Date.now() ],
+                failed: []
+            }
         }
-    }, function () {
-        this._endpoints[url] = { health: health, mock: mock }
+        this.health(url, async())
     })
 })
 
@@ -29,4 +29,15 @@ Scheduler.prototype.checkEndpoints = cadence(function (async) {
 
 Scheduler.prototype.health = cadence(function (async, url) {
     // test
+    async(function () {
+        if (typeof health == 'function') {
+            this._endpoints[url].health(url, async())
+        } else {
+            this._agent.fetch({
+                url: url,
+                post: this.endpoints[url].health
+            }, async())
+        }
+    }, function () {
+    })
 })
