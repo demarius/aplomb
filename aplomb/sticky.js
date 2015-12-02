@@ -24,7 +24,11 @@ Scheduler.prototype.addEndpoint = cadence(function (async, url, health) {
 
 Scheduler.prototype.checkEndpoints = cadence(function (async) {
     async.forEach(function (url) {
-    })(this._endpoints)
+        async(function () {
+            this.health(url, async())
+        }, function () {
+        })
+    })(Object.keys(this._endpoints))
 })
 
 Scheduler.prototype.health = cadence(function (async, url) {
@@ -39,5 +43,7 @@ Scheduler.prototype.health = cadence(function (async, url) {
             }, async())
         }
     }, function () {
+        this.endpoints[url].status.healthy.push(Date.now())
+        // need to catch error and push to failed
     })
 })
