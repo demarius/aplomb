@@ -11,7 +11,7 @@ Scheduler.prototype.addEndpoint = cadence(function (async, url, health) {
     // Not checking if URL exists, just reset.
     async(function () {
         this._endpoints[url] = {
-            health: health,
+            health: health || url,
             mock: mock,
             status: {
                 healthy: [ Date.now() ],
@@ -23,6 +23,7 @@ Scheduler.prototype.addEndpoint = cadence(function (async, url, health) {
 })
 
 Scheduler.prototype.checkEndpoints = cadence(function (async) {
+    var healthy = []
     async.forEach(function (url) {
         async(function () {
             this.health(url, async())
@@ -42,8 +43,10 @@ Scheduler.prototype.health = cadence(function (async, url) {
                 post: this.endpoints[url].health
             }, async())
         }
-    }, function () {
-        this.endpoints[url].status.healthy.push(Date.now())
-        // need to catch error and push to failed
+    }, function (healthy) {
+        if (healthy == true) {
+            this.endpoints[url].status.healthy.push(Date.now())
+        }
+        // need to catch error and push to failed, or 'else' failed
     })
 })
