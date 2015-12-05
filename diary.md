@@ -21,3 +21,12 @@ to check health differently depending on scheduling. shouldn't we know
 already (depending)? we should just give it some endpoints, a health
 mechanism, a scheduling mechanism. Or it will know what health to use.
 I don't know.
+
+# Sharding.
+
+request comes. hash on a request[thing] to find its bucket, send it on its way.
+
+So all we are really thinking about is where.
+
+Alan said we could `&` the hash value.
+but how is a bucket chosen, anyway? It sounded like it's up to the client.
