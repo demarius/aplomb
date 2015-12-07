@@ -3,9 +3,9 @@ var fnv = require('b-tree/benchmark/fnv')
 
 function Router () {
     var length = 255
-    this.endpoints = []
+    this.buckets = []
     while ((length--) > -1) {
-        this.endpoints.push({
+        this.buckets.push({
             url: '127.0.0.1'
         })
     }
