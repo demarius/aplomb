@@ -2,9 +2,9 @@ var hash = require('hash.murmur3.32')
 var fnv = require('b-tree/benchmark/fnv')
 
 function Router () {
-    var length = 255
+    var length = 256
     this.buckets = []
-    while ((length--) > -1) {
+    while ((length--) > 0) {
         this.buckets.push({
             url: '127.0.0.1'
         })
@@ -12,6 +12,7 @@ function Router () {
 }
 
 Router.prototype.match = function (key) {
+   return fnv(key, 0, 32).readUIntLE(0, 1)
 }
 
 exports.Router = Router
