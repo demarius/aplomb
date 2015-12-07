@@ -16,7 +16,10 @@
     "delta":   "0.0.4",
     "vizsla":  "0.0.7",
     "arguable": "0.0.36",
-    "cadence": "0.4.1"
+    "cadence": "0.4.1",
+    "b-tree": "0.0.41",
+    "proof": "0.0.56",
+    "hash.murmur3.32": "0.0.0"
   },
   "license": "ISC",
   "bugs": {
