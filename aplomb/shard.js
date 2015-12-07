@@ -1,7 +1,7 @@
 var hash = require('hash.murmur3.32')
 var fnv = require('b-tree/benchmark/fnv')
 
-function Targets () {
+function Router () {
     var length = 255
     this.endpoints = []
     while ((length--) > -1) {
@@ -11,5 +11,7 @@ function Targets () {
     }
 }
 
-Targets.prototype.match = function (key) {
+Router.prototype.match = function (key) {
 }
+
+exports.Router = Router
