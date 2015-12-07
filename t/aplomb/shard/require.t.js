@@ -1,4 +1,5 @@
-require('proof')(1, prove)
-function prove (assert) {
+#!/usr/bin/env/node
+
+require('proof')(1, function (assert) {
    assert(require('../../../aplomb/shard.js'), 'require')
-}
+})
