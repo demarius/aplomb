@@ -4,7 +4,7 @@ function prove(assert) {
     var r = new require('../../../aplomb/router.js')
     var delegates = [
             'http://192.168.0.14:8080',
-            'http://192.168.0.14:5432',
+            'http://192.168.0.14:5432/blah/two',
             'http://192.168.0.14:2345'
         ]
     var router = new r.Router({
