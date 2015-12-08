@@ -10,6 +10,5 @@ function prove(assert) {
         ]
     })
 
-    console.log(router.buckets)
-    assert(true, 'true')
+    assert(router.buckets[2].url, 'http://192.168.0.14:8080', 'true')
 }
