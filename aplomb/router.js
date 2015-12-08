@@ -20,7 +20,8 @@ function Router (options) {
 }
 
 Router.prototype.match = function (obj) {
-   return this.buckets[fnv(this.extract(obj), 0, 32).readUIntLE(0, 1)].url
+    var key = this.extract(obj)
+    return this.buckets[fnv(new Buffer(key), 0, Buffer.byteLength(key)).readUIntLE(0, 1)].url
 }
 
 exports.Router = Router

@@ -10,11 +10,11 @@ function prove(assert) {
     var router = new r.Router({
         delegates: delegates,
         extract: function (obj) {
-            return 2
+            return obj.key
         }
     })
 
     assert(router.buckets[120].url, delegates[1], 'true')
 
-    assert(delegates.indexOf(router.match({})) > -1, 'delegate matched')
+    assert(delegates.indexOf(router.match({ key: 'shep' })) > -1, 'delegate matched')
 }
