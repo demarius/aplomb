@@ -3,12 +3,18 @@ var fnv = require('b-tree/benchmark/fnv')
 
 function Router (options) {
     this.delegates = options.delegates
-    var length = Math.max(256, this.delegates.length)
+    var length = 256, dist = Math.floor(length / options.delegates.length)
     this.buckets = []
-    while ((length--) > 0) {
-        this.buckets.push({
-            url: options.delegates.shift() || '127.0.0.1'
-        })
+    this.delegates.map(function (del) {
+        for (var i=0; i<dist; i++) {
+            length--
+            this.buckets.push({
+                url: del
+            })
+        }
+    }.bind(this))
+    while (length-- > 0) {
+        this.buckets.push({ url: this.delegates[this.delegates.length - 1] })
     }
 }
 

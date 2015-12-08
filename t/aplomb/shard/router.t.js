@@ -5,10 +5,11 @@ function prove(assert) {
     var router = new r.Router({
         delegates: [
             'http://192.168.0.14:8080',
-            'http://192.168.0.14:8080',
-            'http://192.168.0.14:8080'
+            'http://192.168.0.14:5432',
+            'http://192.168.0.14:2345'
         ]
     })
 
-    assert(router.buckets[2].url, 'http://192.168.0.14:8080', 'true')
+    console.log(router.buckets)
+    assert(router.buckets[120].url, 'http://192.168.0.14:5432', 'true')
 }
