@@ -24,4 +24,13 @@ Router.prototype.match = function (obj) {
     return this.buckets[fnv(new Buffer(key), 0, Buffer.byteLength(key)).readUIntLE(0, 1)].url
 }
 
+Router.prototype.newDelegate = function (del) {
+// redistribute buckets
+}
+
+Router.prototype.removeDelegate = function () {
+// keep old config until migration complete
+}
+
+
 exports.Router = Router
