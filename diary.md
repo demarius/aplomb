@@ -25,10 +25,3 @@ I don't know.
 # Sharding.
 
 request comes. hash on a request[thing] to find its bucket, send it on its way.
-
-So all we are really thinking about is where.
-
-Alan said we could `&` the hash value.
-but how is a bucket chosen, anyway? It sounded like it's up to the client.
-oh right. whoever's got the bucket, cuz we're supposed to keep track of
-who has which buckets. duh. right.
