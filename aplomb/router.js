@@ -2,6 +2,7 @@ var hash = require('hash.murmur3.32')
 var fnv = require('b-tree/benchmark/fnv')
 
 function Router (options) {
+    this.routes = []
     this.distribute(options.delegates, 256)
     this.extract = options.extract
 }
@@ -28,11 +29,11 @@ Router.prototype.distribute = function (delegates, length) {
     }
 }
 
-Router.prototype.newDelegate = function (del) {
+Router.prototype.add = function (delegate) {
 // redistribute buckets
 }
 
-Router.prototype.removeDelegate = function () {
+Router.prototype.remove = function (delegate) {
 // keep old config until migration complete
 }
 
