@@ -1,4 +1,4 @@
-require('proof')(2, prove)
+require('proof')(5, prove)
 
 function prove(assert) {
     var r = new require('../../../aplomb/router.js')
@@ -13,8 +13,27 @@ function prove(assert) {
             return obj.key
         }
     })
+    var dist = Math.floor(256, router.routes[0].delegates.length)
 
-    assert(router.buckets[120].url, delegates[1], 'true')
+    assert(router.routes[0].buckets[120].url, delegates[1], 'true')
 
     assert(delegates.indexOf(router.match({ key: 'shep' })) > -1, 'delegate matched')
+
+    router.add('http://192.173.0.14:2381')
+
+    assert(router.routes[0].delegates.indexOf('http://192.173.0.14:2381') > -1,
+    'delegate added')
+
+    var indices = []
+    for (var b in router.routes[0].buckets) {
+        if (router.routes[0].buckets[b].url == 'http://192.173.0.14:2381') {
+            indices.push(b)
+        }
+    }
+
+    assert((indices.length == 64), 'buckets distributed')
+    router.remove('http://192.173.0.14:2381')
+
+    assert((dist == Math.floor(256, router.routes[0].delegates.length)),
+    'redistributed')
 }

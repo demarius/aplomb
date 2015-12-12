@@ -9,7 +9,7 @@ function Router (options) {
 
 Router.prototype.match = function (obj) {
     var key = this.extract(obj)
-    return this.buckets[fnv(new Buffer(key), 0, Buffer.byteLength(key)).readUIntLE(0, 1)].url
+    return this.routes[0].buckets[fnv(new Buffer(key), 0, Buffer.byteLength(key)).readUIntLE(0, 1)].url
 }
 
 Router.prototype.distribute = function (delegates, length) {
@@ -35,10 +35,36 @@ Router.prototype.distribute = function (delegates, length) {
 
 Router.prototype.add = function (delegate) {
 // redistribute buckets
+    var delegates = this.routes[0].delegates
+    delegates.push(delegate)
+    this.distribute(delegates, this.routes[0].buckets.length)
 }
 
 Router.prototype.remove = function (delegate) {
 // keep old config until migration complete
+    var delegates = this.routes[0].delegates.slice(),
+    buckets = this.routes[0].buckets.slice(), indices = []
+    delegates = delegates.splice(delegates.indexOf(delegate), 1)
+    //this.distribute(delegates)... nah
+
+    for (var b in this.routes[0].buckets) {
+        if (this.routes[0].buckets[b].url == delegate) {
+            indices.push(b)
+        }
+    }
+
+    var dist = Math.floor(indices.length, this.routes[0].delegates.length - 1)
+
+    for (var b in indices) {
+        for (var i=0; i<dist; i++) {
+            buckets[indices[b]].url = delegates[i]
+        }
+    }
+
+    this.routes.unshift({
+        buckets: buckets,
+        delegates: delegates
+    })
 }
 
 
