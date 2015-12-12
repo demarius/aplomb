@@ -2,7 +2,7 @@ var hash = require('hash.murmur3.32')
 var fnv = require('b-tree/benchmark/fnv')
 
 function Router (options) {
-    this.distribute(options.delegates)
+    this.distribute(options.delegates, 256)
     this.extract = options.extract
 }
 
@@ -11,8 +11,8 @@ Router.prototype.match = function (obj) {
     return this.buckets[fnv(new Buffer(key), 0, Buffer.byteLength(key)).readUIntLE(0, 1)].url
 }
 
-Router.prototype.distribute = function (delegates) {
-    var length = 256, dist = Math.floor(length / delegates.length)
+Router.prototype.distribute = function (delegates, length) {
+    var dist = Math.floor(length / delegates.length)
     this.delegates = delegates
     this.buckets = []
     this.delegates.forEach(function (del) {
