@@ -34,18 +34,15 @@ Router.prototype.distribute = function (delegates, length) {
 }
 
 Router.prototype.add = function (delegate) {
-// redistribute buckets
     var delegates = this.routes[0].delegates
     delegates.push(delegate)
     this.distribute(delegates, this.routes[0].buckets.length)
 }
 
 Router.prototype.remove = function (delegate) {
-// keep old config until migration complete
     var delegates = this.routes[0].delegates.slice(),
     buckets = this.routes[0].buckets.slice(), indices = []
     delegates = delegates.splice(delegates.indexOf(delegate), 1)
-    //this.distribute(delegates)... nah
 
     for (var b in this.routes[0].buckets) {
         if (this.routes[0].buckets[b].url == delegate) {
