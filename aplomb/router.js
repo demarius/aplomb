@@ -14,19 +14,23 @@ Router.prototype.match = function (obj) {
 
 Router.prototype.distribute = function (delegates, length) {
     var dist = Math.floor(length / delegates.length)
-    this.delegates = delegates
-    this.buckets = []
-    this.delegates.forEach(function (del) {
+    var buckets = []
+    delegates.forEach(function (del) {
         for (var i=0; i<dist; i++) {
             length--
-            this.buckets.push({
+            buckets.push({
                 url: del
             })
         }
     }, this)
     while (length-- > 0) {
-        this.buckets.push({ url: this.delegates[this.delegates.length - 1] })
+        buckets.push({ url: delegates[delegates.length - 1] })
     }
+
+    this.routes.unshift({
+        buckets: buckets,
+        delegates: delegates
+    })
 }
 
 Router.prototype.add = function (delegate) {
