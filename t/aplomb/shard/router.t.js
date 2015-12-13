@@ -54,4 +54,5 @@ function prove(assert) {
     router.addConnection(9, { username: 'user', password: 'pass' })
     router.addConnection(9, { username: 'fewer', password: 'sass' })
     router.removeConnection(9, { username: 'fewer', password: 'sass' })
+    router.removeConnection(10, { username: 'user', password: 'pass' })
 }
