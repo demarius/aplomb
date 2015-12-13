@@ -36,6 +36,7 @@ Router.prototype.match = function (obj) {
 Router.prototype.distribute = function (delegates, length, version) {
     var dist = Math.floor(length / delegates.length)
     var buckets = []
+
     delegates.forEach(function (del) {
         for (var i = 0; i < dist; i++) {
             length--
@@ -44,6 +45,7 @@ Router.prototype.distribute = function (delegates, length, version) {
             })
         }
     }, this)
+
     while (length-- > 0) {
         buckets.push({ url: delegates[delegates.length - 1] })
     }
@@ -113,9 +115,7 @@ Router.prototype.addConnection = function (version, connection) {
 }
 
 Router.prototype.removeConnection = function (version, connection) {
-    if (version > this.connections[0].version) {
-        this.connections.unshift(this.connectionTable(version))
-    } else if (!this.connections[0].connections.remove(connection)) {
+    if (!this.connections[0].connections.remove(connection)) {
         //trouble
     }
 }
