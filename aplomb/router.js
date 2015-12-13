@@ -4,7 +4,8 @@ var fnv = require('b-tree/benchmark/fnv')
 
 function Router (options) {
     this.routes = []
-    this.distribute(options.delegates, 256, options.version)
+    this.distribute(options.delegates, 256, options.version || 0) // switch to
+    //monotonic
     this.extract = options.extract
     this.incrementVersion = options.incrementVersion || function (x) {
         return  x + 1
@@ -12,7 +13,9 @@ function Router (options) {
     this.connections = [{
         version: options.version,
         connections: new RBTree(function (a, b) {
-            return (this.extract(a) >= this.extract(b))
+            a = this.extract(a)
+            b = this.extract(b)
+            return a < b ? -1 : a > b ? 1 : 0
         }.bind(this))
     }]
 }
@@ -40,7 +43,7 @@ Router.prototype.distribute = function (delegates, length, version) {
     this.routes.unshift({
         buckets: buckets,
         delegates: delegates,
-        version: version ? version : this.incrementVersion(this.routes[0].version)
+        version: version
     })
 }
 
@@ -92,7 +95,12 @@ Router.prototype.remove = function (delegate) {
     })
 }
 
-Router.prototype.addConnection = function () {
+Router.prototype.addConnection = function (version, connection) {
+    //compare versions
+    //if (version > this.routes[0].version)
+    if (!this.connections[0].connections.insert(connection)) {
+        //trouble
+    }
 }
 
 Router.prototype.removeConnection = function () {
