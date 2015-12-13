@@ -1,6 +1,7 @@
 var RBTree = require('bintrees').RBTree
 var hash = require('hash.murmur3.32')
 var fnv = require('hash.fnv')
+var monotonic = require('monotonic')
 
 function Router (options) {
     this.routes = []
@@ -8,14 +9,16 @@ function Router (options) {
     //monotonic
     this.extract = options.extract
     this.incrementVersion = options.incrementVersion || function (x) {
-        return  x + 1
+        //return  x + 1
+        console.log(x)
+        return monotonic.increment(x)
     }
-    this.connections = [ this.connectionTable(options.version || 0) ]
+    this.connections = [ this.connectionTable(options.version || 0xffffffff) ]
 }
 
 Router.prototype.connectionTable = function (version) {
     return { // switch to monotonic
-        version: version, //switch to monotonic
+        version: monotonic.parse(version.toString()),
         connections: new RBTree(function (a, b) {
             a = this.extract(a)
             b = this.extract(b)
@@ -48,7 +51,7 @@ Router.prototype.distribute = function (delegates, length, version) {
     this.routes.unshift({
         buckets: buckets,
         delegates: delegates,
-        version: version
+        version: monotonic.parse(version.toString())
     })
 }
 
@@ -117,10 +120,15 @@ Router.prototype.removeConnection = function (version, connection) {
     }
 }
 
-Router.prototype.evict = function () {
-}
-
-Router.prototype.evictable = function (latest) {
+Router.prototype.evictable = function (latest, delegate, inspect) {
+    var version, old = this.connections.length
+    while (old--) {
+        this.connections[old].connections.each(function (conn) {
+            if (delegate == this.match(conn)) {
+                return conn
+            }
+        })
+    }
 }
 
 

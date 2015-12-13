@@ -1,4 +1,4 @@
-require('proof')(6, prove)
+require('proof')(7, prove)
 
 function prove(assert) {
     var r = require('../../../aplomb/router.js')
@@ -29,7 +29,6 @@ function prove(assert) {
     assert(delegates.indexOf(router.match({ key: 'shep' })) > -1, 'delegate matched')
 
     router.add('http://192.173.0.14:2381')
-    router.incrementVersion = function (x) {return x + 2}
     router.add('http://192.173.0.14:2382')
 
     assert(router.routes[0].delegates.indexOf('http://192.173.0.14:2381') > -1,
@@ -44,12 +43,14 @@ function prove(assert) {
 
     assert((indices == 51), 'buckets redistributed')
     router.remove('http://192.173.0.14:2381')
+    assert((router.routes[0].version == 4), 'version incremented')
+    router.incrementVersion = function (x) {return parseInt(x) + 2}
     router.remove('http://192.173.0.14:2382')
+    assert((router.routes[0].version == 6), 'version increment swapped')
 
     assert((dist == Math.floor(256, router.routes[0].delegates.length)),
     'distribution reproduced')
 
-    assert((router.routes[0].version == 8), 'version incremented')
 
     router.addConnection(9, { username: 'user', password: 'pass' })
     router.addConnection(9, { username: 'fewer', password: 'sass' })
