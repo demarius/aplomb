@@ -45,6 +45,7 @@ Router.prototype.distribute = function (delegates, length, version) {
 }
 
 Router.prototype.add = function (delegate) {
+    //needs rewrite. shouldn't call distribute, should sift over
     var delegates = this.routes[0].delegates
     delegates.push(delegate)
     this.distribute(delegates, this.routes[0].buckets.length)

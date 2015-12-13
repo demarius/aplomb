@@ -18,6 +18,7 @@
     "arguable": "0.0.36",
     "b-tree": "0.0.41",
     "proof": "0.0.56",
+    "bintrees": "1.0.1",
     "hash.murmur3.32": "0.0.0"
   },
   "license": "ISC",
