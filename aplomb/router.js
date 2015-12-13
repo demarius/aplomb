@@ -26,7 +26,7 @@ Router.prototype.distribute = function (delegates, length, version) {
     var dist = Math.floor(length / delegates.length)
     var buckets = []
     delegates.forEach(function (del) {
-        for (var i=0; i<dist; i++) {
+        for (var i = 0; i < dist; i++) {
             length--
             buckets.push({
                 url: del
@@ -53,7 +53,7 @@ Router.prototype.add = function (delegate) {
     var dist = Math.floor(buckets.length / delegates.length)
     dist = Math.floor(dist / (delegates.length - 1))
 
-    for (var b in buckets) {
+    for (var b = 0, I = buckets.length; b < I; b++) {
         if (redist[delegates.indexOf(buckets[b].url)] == dist) continue
         redist[delegates.indexOf(buckets[b].url)] += 1
         buckets[b].url = delegate
@@ -71,7 +71,7 @@ Router.prototype.remove = function (delegate) {
     buckets = this.routes[0].buckets.slice(), indices = []
     delegates = delegates.splice(delegates.indexOf(delegate), 1)
 
-    for (var b in buckets) {
+    for (var b = 0, I = buckets.length; b < I; b++) {
         if (this.routes[0].buckets[b].url == delegate) {
             indices.push(b)
         }
@@ -79,7 +79,7 @@ Router.prototype.remove = function (delegate) {
 
     var dist = Math.floor(indices.length, this.routes[0].delegates.length - 1)
 
-    for (var b in indices) {
+    for (var b = 0, I = indices.length; b < I; b++) {
         for (var i=0; i<dist; i++) {
             buckets[indices[b]].url = delegates[i]
         }
