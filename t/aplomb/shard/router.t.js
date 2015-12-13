@@ -7,13 +7,20 @@ function prove(assert) {
             'http://192.168.0.14:5432/blah/two',
             'http://192.168.0.14:2345'
         ]
-    var router = new r.Router({
+    var unversioned = new r.Router({
         delegates: delegates,
         extract: function (obj) {
             return obj.key
+        }
+    })
+
+    var router = new r.Router({
+        delegates: delegates,
+        extract: function (obj) {
+            return obj.username + ':' + obj.password
         },
-        version: 1,
-        incrementVersion: function (x) {return x + 2}
+        version: 1//,
+        //incrementVersion: function (x) {return x + 2}
     })
     var dist = Math.floor(256, router.routes[0].delegates.length)
 
@@ -22,6 +29,8 @@ function prove(assert) {
     assert(delegates.indexOf(router.match({ key: 'shep' })) > -1, 'delegate matched')
 
     router.add('http://192.173.0.14:2381')
+    router.incrementVersion = function (x) {return x + 2}
+    router.add('http://192.173.0.14:2382')
 
     assert(router.routes[0].delegates.indexOf('http://192.173.0.14:2381') > -1,
     'delegate added')
@@ -33,11 +42,14 @@ function prove(assert) {
         }
     }
 
-    assert((indices == 63), 'buckets redistributed')
+    assert((indices == 51), 'buckets redistributed')
     router.remove('http://192.173.0.14:2381')
+    router.remove('http://192.173.0.14:2382')
 
     assert((dist == Math.floor(256, router.routes[0].delegates.length)),
     'distribution reproduced')
 
-    assert((router.routes[0].version == 5), 'version incremented')
+    assert((router.routes[0].version == 8), 'version incremented')
+
+    router.addConnection(9, { username: 'user', password: 'pass' })
 }
