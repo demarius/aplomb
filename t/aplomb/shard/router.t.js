@@ -1,4 +1,4 @@
-require('proof')(5, prove)
+require('proof')(6, prove)
 
 function prove(assert) {
     var r = require('../../../aplomb/router.js')
