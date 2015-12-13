@@ -1,6 +1,6 @@
 var RBTree = require('bintrees').RBTree
 var hash = require('hash.murmur3.32')
-var fnv = require('b-tree/benchmark/fnv')
+var fnv = require('hash.fnv')
 
 function Router (options) {
     this.routes = []
@@ -11,7 +11,7 @@ function Router (options) {
         return  x + 1
     }
     this.connections = [{
-        version: options.version,
+        version: options.version || 0, //switch to monotonic
         connections: new RBTree(function (a, b) {
             a = this.extract(a)
             b = this.extract(b)
@@ -22,7 +22,8 @@ function Router (options) {
 
 Router.prototype.match = function (obj) {
     var key = this.extract(obj)
-    return this.routes[0].buckets[fnv(new Buffer(key), 0, Buffer.byteLength(key)).readUIntLE(0, 1)].url
+    return this.routes[0].buckets[fnv(0, new Buffer(key), 0,
+    Buffer.byteLength(key)) & 0xFF].url
 }
 
 Router.prototype.distribute = function (delegates, length, version) {
@@ -97,7 +98,7 @@ Router.prototype.remove = function (delegate) {
 
 Router.prototype.addConnection = function (version, connection) {
     //compare versions
-    //if (version > this.routes[0].version)
+    //if (version > this.connections[0].version)
     if (!this.connections[0].connections.insert(connection)) {
         //trouble
     }
