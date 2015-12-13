@@ -1,3 +1,4 @@
+var RBTree = require('bintrees').RBTree
 var hash = require('hash.murmur3.32')
 var fnv = require('b-tree/benchmark/fnv')
 
@@ -8,6 +9,12 @@ function Router (options) {
     this.incrementVersion = options.incrementVersion || function (x) {
         return  x + 1
     }
+    this.connections = [{
+        version: options.version,
+        connections: new RBTree(function (a, b) {
+            return (this.extract(a) >= this.extract(b))
+        }.bind(this))
+    }]
 }
 
 Router.prototype.match = function (obj) {
@@ -67,6 +74,18 @@ Router.prototype.remove = function (delegate) {
         delegates: delegates,
         version: this.incrementVersion(this.routes[0].version)
     })
+}
+
+Router.prototype.addConnection = function () {
+}
+
+Router.prototype.removeConnection = function () {
+}
+
+Router.prototype.evict = function () {
+}
+
+Router.prototype.evictable = function () {
 }
 
 
