@@ -3,8 +3,11 @@ var fnv = require('b-tree/benchmark/fnv')
 
 function Router (options) {
     this.routes = []
-    this.distribute(options.delegates, 256)
+    this.distribute(options.delegates, 256, options.version)
     this.extract = options.extract
+    this.incrementVersion = options.incrementVersion || function (x) {
+        return  x + 1
+    }
 }
 
 Router.prototype.match = function (obj) {
@@ -12,7 +15,7 @@ Router.prototype.match = function (obj) {
     return this.routes[0].buckets[fnv(new Buffer(key), 0, Buffer.byteLength(key)).readUIntLE(0, 1)].url
 }
 
-Router.prototype.distribute = function (delegates, length) {
+Router.prototype.distribute = function (delegates, length, version) {
     var dist = Math.floor(length / delegates.length)
     var buckets = []
     delegates.forEach(function (del) {
@@ -29,7 +32,8 @@ Router.prototype.distribute = function (delegates, length) {
 
     this.routes.unshift({
         buckets: buckets,
-        delegates: delegates
+        delegates: delegates,
+        version: version ? version : this.incrementVersion(this.routes[0].version)
     })
 }
 
@@ -60,7 +64,8 @@ Router.prototype.remove = function (delegate) {
 
     this.routes.unshift({
         buckets: buckets,
-        delegates: delegates
+        delegates: delegates,
+        version: this.incrementVersion(this.routes[0].version)
     })
 }
 

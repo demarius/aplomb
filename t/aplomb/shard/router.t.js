@@ -1,7 +1,7 @@
 require('proof')(5, prove)
 
 function prove(assert) {
-    var r = new require('../../../aplomb/router.js')
+    var r = require('../../../aplomb/router.js')
     var delegates = [
             'http://192.168.0.14:8080',
             'http://192.168.0.14:5432/blah/two',
@@ -11,7 +11,9 @@ function prove(assert) {
         delegates: delegates,
         extract: function (obj) {
             return obj.key
-        }
+        },
+        version: 1,
+        incrementVersion: function (x) {return x + 2}
     })
     var dist = Math.floor(256, router.routes[0].delegates.length)
 
@@ -36,4 +38,6 @@ function prove(assert) {
 
     assert((dist == Math.floor(256, router.routes[0].delegates.length)),
     'redistributed')
+
+    assert((router.routes[0].version == 5), 'version incremented')
 }
