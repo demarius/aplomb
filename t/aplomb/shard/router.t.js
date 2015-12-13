@@ -26,18 +26,18 @@ function prove(assert) {
     assert(router.routes[0].delegates.indexOf('http://192.173.0.14:2381') > -1,
     'delegate added')
 
-    var indices = []
+    var indices = 0
     for (var b in router.routes[0].buckets) {
         if (router.routes[0].buckets[b].url == 'http://192.173.0.14:2381') {
-            indices.push(b)
+            indices++
         }
     }
 
-    assert((indices.length == 64), 'buckets distributed')
+    assert((indices == 63), 'buckets redistributed')
     router.remove('http://192.173.0.14:2381')
 
     assert((dist == Math.floor(256, router.routes[0].delegates.length)),
-    'redistributed')
+    'distribution reproduced')
 
     assert((router.routes[0].version == 5), 'version incremented')
 }

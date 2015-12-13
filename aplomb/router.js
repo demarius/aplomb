@@ -45,10 +45,25 @@ Router.prototype.distribute = function (delegates, length, version) {
 }
 
 Router.prototype.add = function (delegate) {
-    //needs rewrite. shouldn't call distribute, should sift over
-    var delegates = this.routes[0].delegates
+    var delegates = this.routes[0].delegates.slice(),
+    buckets = this.routes[0].buckets.slice(),
+    redist = Array.apply(null, Array(delegates.length)).map(Number.prototype.valueOf, 0)
     delegates.push(delegate)
-    this.distribute(delegates, this.routes[0].buckets.length)
+
+    var dist = Math.floor(buckets.length / delegates.length)
+    dist = Math.floor(dist / (delegates.length - 1))
+
+    for (var b in buckets) {
+        if (redist[delegates.indexOf(buckets[b].url)] == dist) continue
+        redist[delegates.indexOf(buckets[b].url)] += 1
+        buckets[b].url = delegate
+    }
+
+    this.routes.unshift({
+        buckets: buckets,
+        delegates: delegates,
+        version : this.incrementVersion(this.routes[0].version)
+    })
 }
 
 Router.prototype.remove = function (delegate) {
@@ -56,7 +71,7 @@ Router.prototype.remove = function (delegate) {
     buckets = this.routes[0].buckets.slice(), indices = []
     delegates = delegates.splice(delegates.indexOf(delegate), 1)
 
-    for (var b in this.routes[0].buckets) {
+    for (var b in buckets) {
         if (this.routes[0].buckets[b].url == delegate) {
             indices.push(b)
         }
@@ -86,7 +101,7 @@ Router.prototype.removeConnection = function () {
 Router.prototype.evict = function () {
 }
 
-Router.prototype.evictable = function () {
+Router.prototype.evictable = function (latest) {
 }
 
 
