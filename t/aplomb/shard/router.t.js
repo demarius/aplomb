@@ -52,4 +52,6 @@ function prove(assert) {
     assert((router.routes[0].version == 8), 'version incremented')
 
     router.addConnection(9, { username: 'user', password: 'pass' })
+    router.addConnection(9, { username: 'fewer', password: 'sass' })
+    router.removeConnection(9, { username: 'fewer', password: 'sass' })
 }

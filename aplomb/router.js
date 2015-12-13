@@ -104,7 +104,9 @@ Router.prototype.addConnection = function (version, connection) {
     }
 }
 
-Router.prototype.removeConnection = function () {
+Router.prototype.removeConnection = function (version, connection) {
+    if (!this.connections[0].connections.remove(connection)) {
+    }
 }
 
 Router.prototype.evict = function () {
