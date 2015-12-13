@@ -10,14 +10,18 @@ function Router (options) {
     this.incrementVersion = options.incrementVersion || function (x) {
         return  x + 1
     }
-    this.connections = [{
-        version: options.version || 0, //switch to monotonic
+    this.connections = [ this.connectionTable(options.version || 0) ]
+}
+
+Router.prototype.connectionTable = function (version) {
+    return { // switch to monotonic
+        version: version, //switch to monotonic
         connections: new RBTree(function (a, b) {
             a = this.extract(a)
             b = this.extract(b)
             return a < b ? -1 : a > b ? 1 : 0
         }.bind(this))
-    }]
+    }
 }
 
 Router.prototype.match = function (obj) {
@@ -97,15 +101,19 @@ Router.prototype.remove = function (delegate) {
 }
 
 Router.prototype.addConnection = function (version, connection) {
-    //compare versions
-    //if (version > this.connections[0].version)
+    if (version > this.connections[0].version) {
+        this.connections.unshift(this.connectionTable(version))
+    }
     if (!this.connections[0].connections.insert(connection)) {
         //trouble
     }
 }
 
 Router.prototype.removeConnection = function (version, connection) {
-    if (!this.connections[0].connections.remove(connection)) {
+    if (version > this.connections[0].version) {
+        this.connections.unshift(this.connectionTable(version))
+    } else if (!this.connections[0].connections.remove(connection)) {
+        //trouble
     }
 }
 
