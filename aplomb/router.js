@@ -5,19 +5,17 @@ var monotonic = require('monotonic')
 
 function Router (options) {
     this.routes = []
-    this.distribute(options.delegates, 256, options.version || 0) // switch to
-    //monotonic
+    this.distribute(options.delegates, 256, options.version)
     this.extract = options.extract
-    this.incrementVersion = options.incrementVersion || function (x) {
-        //return  x + 1
+    this.incrementVersion = function (x) {
         return monotonic.increment(x)
     }
-    this.connections = [ this.connectionTable(options.version || 0x1) ]
+    this.connections = [ this.connectionTable(monotonic.parse(options.version)) ]
 }
 
 Router.prototype.connectionTable = function (version) {
-    return { // switch to monotonic
-        version: monotonic.parse(version.toString()),
+    return {
+        version: monotonic.parse(version),
         connections: new RBTree(function (a, b) {
             a = this.extract(a)
             b = this.extract(b)
@@ -26,10 +24,14 @@ Router.prototype.connectionTable = function (version) {
     }
 }
 
-Router.prototype.match = function (obj) {
-    var key = this.extract(obj)
-    return this.routes[0].buckets[fnv(0, new Buffer(key), 0,
-    Buffer.byteLength(key)) & 0xFF].url
+Router.prototype.match = function (connection) {
+    var key = this.extract(connection), delegates = []
+    for (var i = 0, I = this.routes.length; i < I; i++) {
+        delegates.push(this.routes[i].buckets[fnv(0, new Buffer(key), 0, Buffer.byteLength(key)) & 0xFF].url)
+    }
+    return delegates.filter(function (del, i, set) {
+        return (set.indexOf(del) == i)
+    })
 }
 
 Router.prototype.distribute = function (delegates, length, version) {
@@ -52,7 +54,7 @@ Router.prototype.distribute = function (delegates, length, version) {
     this.routes.unshift({
         buckets: buckets,
         delegates: delegates,
-        version: monotonic.parse(version.toString())
+        version: monotonic.parse(version)
     })
 }
 
@@ -105,41 +107,34 @@ Router.prototype.remove = function (delegate) {
 }
 
 Router.prototype.addConnection = function (version, connection) {
-// just take it
-// if first, create
-    version = monotonic.parse(version.toString())
+    version = monotonic.parse(version)
 
-    this.connections.sort(function (a, b) {
-        a = monotonic.compare(a.version, b.version)
-            return a < 0 ? -1 : a > 0 ? 1 : 0
-    })
-
-    for (var i=0, I=this.connections.length; i<I; i++) {
-        if (monotonic.compare(version, this.connections[i].version) == 0) {
-            this.connections[i].connections.insert(connection)
-            return
+    var i = 0, I
+    for (var compare, I = this.connections.length; i < I; i++) {
+        compare = monotonic.compare(version, this.connections[i].version)
+        if (compare == 0) {
+            break
+        } else if (compare > 0) {
+            this.connections.splice(i, 0, this.connectionTable(version))
+            break
         }
     }
-
-    //if not found, stick it.
-    this.connections.splice(0, 0, this.connectionTable(version))
-    if (this.connections[0].connections.insert(connection)) {
-        //trouble
+    if (i == I) {
+        this.connections.push(this.connectionTable(version))
     }
+    this.connections[i].connections.insert(connection)
 }
 
 Router.prototype.removeConnection = function (connection) {
-   var i=0, I, indices = []
-   for (I=this.connections.length; i<I; i++) {
-        if (!this.connections[i]) continue
+   var i=0, indices = []
+   for (var I = this.connections.length; i < I;) {
         var tree = this.connections[i].connections
-        if (!tree.remove(connection)) {
-            //trouble
-        }
-        if (tree.size == 0) indices.push(i)
+        tree.remove(connection)
+        if (tree.size == 0) {
+            this.connections.splice(i, 1)
+            I--
+        } else { i++ }
     }
-    I = indices.length
-    while (I--) this.connections.splice(indices[i])
 }
 
 Router.prototype.evictable = function (latest, delegate, inspect) {
