@@ -109,10 +109,10 @@ Router.prototype.addConnection = function (version, connection) {
 // if first, create
     version = monotonic.parse(version.toString())
 
-    var index
-    for (var i=0, I=this.connections.length; i<I; i++) {
+    var i
+    for (var I = this.connections.length; i < I; i++) {
         if (monotonic.compare(version, this.connections[i].version) == 0) {
-            index = i
+            break
         }
     }
     //index = index of tree or undefined if new version
