@@ -123,13 +123,14 @@ Router.prototype.addConnection = function (version, connection) {
 
 Router.prototype.removeConnection = function (connection) {
    var i=0, indices = []
-   for (var I = this.connections.length; i < I; i++) {
+   for (var I = this.connections.length; i < I;) {
         var tree = this.connections[i].connections
         tree.remove(connection)
-        if (tree.size == 0) indices.push(i)
+        if (tree.size == 0) {
+            this.connections.splice(i, 1)
+            I--
+        } else { i++ }
     }
-    i = indices.length
-    while (i--) this.connections.splice(indices[i], 1)
 }
 
 Router.prototype.evictable = function (latest, delegate, inspect) {
