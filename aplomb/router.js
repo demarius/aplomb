@@ -105,18 +105,17 @@ Router.prototype.remove = function (delegate) {
 Router.prototype.addConnection = function (version, connection) {
     version = monotonic.parse(version.toString())
 
-    for (var i = 0, compare, I = this.connections.length; i < I; i++) {
+    var i = 0
+    for (var compare, I = this.connections.length; i < I; i++) {
         compare = monotonic.compare(version, this.connections[i].version)
         if (compare == 0) {
-            this.connections[i].connections.insert(connection)
             break
         } else if (compare > 0) {
             this.connections.splice(i, 0, this.connectionTable(version))
-            this.connections[i].connections.insert(connection)
             break
         }
     }
-    this.connections.sort(monotonic.compare)
+    this.connections[i].connections.insert(connection)
 }
 
 Router.prototype.removeConnection = function (connection) {
