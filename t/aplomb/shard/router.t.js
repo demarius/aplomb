@@ -1,4 +1,4 @@
-require('proof')(8, prove)
+require('proof')(9, prove)
 
 function prove(assert) {
     var r = require('../../../aplomb/router.js')
@@ -41,8 +41,8 @@ function prove(assert) {
     'distribution reproduced')
 
 
-    router.addConnection('soup', { username: 'user', password: 'pass' })
     router.addConnection('1', { username: 'user', password: 'pass' })
+    router.addConnection('2', { username: 'user', password: 'pass' })
     router.addConnection('2', { username: 'user', password: 'pass' })
     router.addConnection('5', { username: 'userr', password: 'ppass' })
     router.addConnection('5', { username: 'fewer', password: 'sass' })
@@ -54,12 +54,14 @@ function prove(assert) {
     router.removeConnection({ username: 'user', password: 'pass' })
 
     assert((router.connections[0].connections.size == 2), 'tables shredded')
+    router.addConnection('2', { username: 'user', password: 'pass' })
 
     assert((router.connections[0].version[0] == 5), 'connection version\
     managed')
 
     assert((delegates.indexOf(router.match({username : 'bluer', password:
     'sass'})[0]) > -1), 'matched')
-    router.addConnection('5', { username: 'user', password: 'pass' })
-    assert((router.evictable()).size == 3, 'got tree')
+
+    assert((router.evictable('http://192.168.0.14:8080').username == 'user'),
+    'evicted old')
 }

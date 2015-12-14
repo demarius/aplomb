@@ -137,17 +137,29 @@ Router.prototype.removeConnection = function (connection) {
     }
 }
 
-Router.prototype.evictable = function (latest, delegate) {
-    var routerVers = this.routes[0].version, tree
-    for (var compare, i = 0, I = this.connections.length; i < I; i++) {
-        compare = monotonic.compare(routerVers, this.connections[0].version )
-        if (compare == 0) {
-            tree = this.connections[i].connections
-            break
+Router.prototype.evictable = function (delegate) {
+    var routerVers = this.routes[0].version
+    for (var i = 0, I = this.connections.length; i < I;) {
+        var compare = monotonic.compare(routerVers, this.connections[i].version)
+        if (compare <= 0) {
+            i++
+            continue
         }
-    }
-    return tree || null
-}
 
+        while (this.connections[i].connections.size > 0) {
+            var min = this.connections[i].connections.min(),
+                current = this.match(min)
+            if (current == delegate) {
+                this.connections[i].connections.remove(min)
+                this.addConnection(monotonic.toString(routerVers), min)
+            } else {
+                return min
+            }
+        }
+        this.connections.splice(i, 1)
+        I--
+    }
+    return null
+}
 
 exports.Router = Router
