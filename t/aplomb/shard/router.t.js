@@ -1,7 +1,7 @@
 require('proof')(14, prove)
 
 function prove(assert) {
-    var r = require('../../../aplomb/router.js')
+    var r = require('../../../shard/router.js')
     var delegates = [
             'http://192.168.0.14:8080',
             'http://192.168.0.14:5432/blah/two',
