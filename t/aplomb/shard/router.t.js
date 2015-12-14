@@ -45,7 +45,7 @@ function prove(assert) {
     'distribution reproduced')
 
 
-    router.addConnection('1.1', { username: 'user', password: 'pass' })
+    router.addConnection('soup', { username: 'user', password: 'pass' })
     router.addConnection('1.2', { username: 'user', password: 'pass' })
     router.addConnection('2', { username: 'user', password: 'pass' })
     router.addConnection('9', { username: 'userr', password: 'ppass' })

@@ -105,7 +105,7 @@ Router.prototype.remove = function (delegate) {
 Router.prototype.addConnection = function (version, connection) {
     version = monotonic.parse(version)
 
-    var i = 0
+    var i = 0, I
     for (var compare, I = this.connections.length; i < I; i++) {
         compare = monotonic.compare(version, this.connections[i].version)
         if (compare == 0) {
@@ -115,7 +115,9 @@ Router.prototype.addConnection = function (version, connection) {
             break
         }
     }
-    console.log(this.connections)
+    if (i == I) {
+        this.connections.push(this.connectionTable(version))
+    }
     this.connections[i].connections.insert(connection)
 }
 
