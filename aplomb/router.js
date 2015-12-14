@@ -5,17 +5,18 @@ var monotonic = require('monotonic')
 
 function Router (options) {
     this.routes = []
+    options.version = monotonic.parse(options.version)
     this.distribute(options.delegates, 256, options.version)
     this.extract = options.extract
     this.incrementVersion = function (x) {
         return monotonic.increment(x)
     }
-    this.connections = [ this.connectionTable(monotonic.parse(options.version)) ]
+    this.connections = [ this.connectionTable(options.version) ]
 }
 
 Router.prototype.connectionTable = function (version) {
     return {
-        version: monotonic.parse(version),
+        version: version,
         connections: new RBTree(function (a, b) {
             a = this.extract(a)
             b = this.extract(b)
@@ -54,7 +55,7 @@ Router.prototype.distribute = function (delegates, length, version) {
     this.routes.unshift({
         buckets: buckets,
         delegates: delegates,
-        version: monotonic.parse(version)
+        version: version
     })
 }
 
