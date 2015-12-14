@@ -25,7 +25,7 @@ Router.prototype.connectionTable = function (version) {
     }
 }
 
-Router.prototype.match = function (connection) {
+Router.prototype.getDelegates = function (connection) {
     var key = this.extract(connection), delegates = []
     for (var i = 0, I = this.routes.length; i < I; i++) {
         delegates.push(this.routes[i].buckets[fnv(0, new Buffer(key), 0, Buffer.byteLength(key)) & 0xFF].url)
@@ -59,7 +59,7 @@ Router.prototype.distribute = function (delegates, length, version) {
     })
 }
 
-Router.prototype.add = function (delegate) {
+Router.prototype.addDelegate = function (delegate) {
     var delegates = this.routes[0].delegates.slice(),
     buckets = this.routes[0].buckets.slice(),
     redist = Array.apply(null, Array(delegates.length)).map(Number.prototype.valueOf, 0)
@@ -81,7 +81,7 @@ Router.prototype.add = function (delegate) {
     })
 }
 
-Router.prototype.remove = function (delegate) {
+Router.prototype.removeDelegate = function (delegate) {
     var delegates = this.routes[0].delegates.slice(),
     buckets = this.routes[0].buckets.slice(), indices = []
     delegates = delegates.splice(delegates.indexOf(delegate), 1)
@@ -158,7 +158,7 @@ Router.prototype.evictable = function (delegate) {
 
         while (this.connections[i].connections.size > 0) {
             var min = this.connections[i].connections.min(),
-                current = this.match(min)
+                current = this.getDelegates(min)
             if (current == delegate) {
                 this.connections[i].connections.remove(min)
                 this.addConnection(monotonic.toString(routerVers), min)

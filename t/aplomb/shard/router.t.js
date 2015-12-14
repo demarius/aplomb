@@ -19,8 +19,8 @@ function prove(assert) {
 
     assert(router.routes[0].buckets[120].url, delegates[1], 'true')
 
-    router.add('http://192.173.0.14:2381')
-    router.add('http://192.173.0.14:2382')
+    router.addDelegate('http://192.173.0.14:2381')
+    router.addDelegate('http://192.173.0.14:2382')
 
     assert(router.routes[0].delegates.indexOf('http://192.173.0.14:2381') > -1,
     'delegate added')
@@ -33,8 +33,8 @@ function prove(assert) {
     }
 
     assert((indices == 51), 'buckets redistributed')
-    router.remove('http://192.173.0.14:2381')
-    router.remove('http://192.173.0.14:2382')
+    router.removeDelegate('http://192.173.0.14:2381')
+    router.removeDelegate('http://192.173.0.14:2382')
     assert((router.routes[0].version == 5), 'version incremented')
 
     assert((dist == Math.floor(256, router.routes[0].delegates.length)),
@@ -60,7 +60,7 @@ function prove(assert) {
     assert((router.connections[0].version[0] == 5), 'connection version\
     managed')
 
-    assert((delegates.indexOf(router.match({username : 'bluer', password:
+    assert((delegates.indexOf(router.getDelegates({username : 'bluer', password:
     'sass'})[0]) > -1), 'matched')
 
     assert((router.evictable('http://192.168.0.14:8080').username == 'user'),
