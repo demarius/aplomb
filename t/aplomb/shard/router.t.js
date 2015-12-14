@@ -1,13 +1,13 @@
 require('proof')(14, prove)
 
 function prove(assert) {
-    var r = require('../../../shard/router.js')
+    var Router = require('../../../aplomb.js')
     var delegates = [
             'http://192.168.0.14:8080',
             'http://192.168.0.14:5432/blah/two',
             'http://192.168.0.14:2345'
         ]
-    var router = new r.Router({
+    var router = new Router({
         delegates: delegates,
         extract: function (obj) {
             return obj.username + ':' + obj.password
@@ -71,7 +71,7 @@ function prove(assert) {
 
     assert((router.getConnection({}) == null), 'not found')
 
-    for (var del in delegates) {
+    for (var del = 0, I = delegates.length; del < I; del++) {
         var e
         while (e = router.evictable(delegates[del])) {
             router.removeConnection(e)
