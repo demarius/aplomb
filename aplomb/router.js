@@ -137,14 +137,16 @@ Router.prototype.removeConnection = function (connection) {
     }
 }
 
-Router.prototype.evictable = function (latest, delegate, inspect) {
-    var version, old = this.connections.length, conn, iter
-    while (old--) {
-        iter = this.connection[old].connections.iterator()
-        while ((conn = iter.next()) !== null) {
-            //if match, return
+Router.prototype.evictable = function (latest, delegate) {
+    var routerVers = this.routes[0].version, tree
+    for (var compare, i = 0, I = this.connections.length; i < I; i++) {
+        compare = monotonic.compare(routerVers, this.connections[0].version )
+        if (compare == 0) {
+            tree = this.connections[i].connections
+            break
         }
     }
+    return tree || null
 }
 
 
