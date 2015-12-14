@@ -52,8 +52,16 @@ function prove(assert) {
     'distribution reproduced')
 
 
+    router.addConnection(6, { username: 'user', password: 'pass' })
+    router.addConnection(1, { username: 'user', password: 'pass' })
+    router.addConnection(2, { username: 'user', password: 'pass' })
     router.addConnection(9, { username: 'user', password: 'pass' })
     router.addConnection(9, { username: 'fewer', password: 'sass' })
-    router.removeConnection(9, { username: 'fewer', password: 'sass' })
-    router.removeConnection(10, { username: 'user', password: 'pass' })
+
+    router.removeConnection({ username: 'fewer', password: 'sass' })
+    router.removeConnection(2, { username: 'user', password: 'pass' })
+
+    router.addConnection(9, { username: 'bluer', password: 'sass' })
+
+    router.removeConnection({ username: 'user', password: 'pass' })
 }

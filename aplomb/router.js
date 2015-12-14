@@ -10,10 +10,9 @@ function Router (options) {
     this.extract = options.extract
     this.incrementVersion = options.incrementVersion || function (x) {
         //return  x + 1
-        console.log(x)
         return monotonic.increment(x)
     }
-    this.connections = [ this.connectionTable(options.version || 0xffffffff) ]
+    this.connections = [ this.connectionTable(options.version || 0x1) ]
 }
 
 Router.prototype.connectionTable = function (version) {
@@ -106,28 +105,50 @@ Router.prototype.remove = function (delegate) {
 }
 
 Router.prototype.addConnection = function (version, connection) {
-    if (version > this.connections[0].version) {
-        this.connections.unshift(this.connectionTable(version))
+// just take it
+// if first, create
+    version = monotonic.parse(version.toString())
+
+    this.connections.sort(function (a, b) {
+        a = monotonic.compare(a.version, b.version)
+            return a < 0 ? -1 : a > 0 ? 1 : 0
+    })
+
+    for (var i=0, I=this.connections.length; i<I; i++) {
+        if (monotonic.compare(version, this.connections[i].version) == 0) {
+            this.connections[i].connections.insert(connection)
+            return
+        }
     }
-    if (!this.connections[0].connections.insert(connection)) {
+
+    //if not found, stick it.
+    this.connections.splice(0, 0, this.connectionTable(version))
+    if (this.connections[0].connections.insert(connection)) {
         //trouble
     }
 }
 
-Router.prototype.removeConnection = function (version, connection) {
-    if (!this.connections[0].connections.remove(connection)) {
-        //trouble
+Router.prototype.removeConnection = function (connection) {
+   var i=0, I, indices = []
+   for (I=this.connections.length; i<I; i++) {
+        if (!this.connections[i]) continue
+        var tree = this.connections[i].connections
+        if (!tree.remove(connection)) {
+            //trouble
+        }
+        if (tree.size == 0) indices.push(i)
     }
+    I = indices.length
+    while (I--) this.connections.splice(indices[i])
 }
 
 Router.prototype.evictable = function (latest, delegate, inspect) {
-    var version, old = this.connections.length
+    var version, old = this.connections.length, conn, iter
     while (old--) {
-        this.connections[old].connections.each(function (conn) {
-            if (delegate == this.match(conn)) {
-                return conn
-            }
-        })
+        iter = this.connection[old].connections.iterator()
+        while ((conn = iter.next()) !== null) {
+            //if match, return
+        }
     }
 }
 
