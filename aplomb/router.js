@@ -24,10 +24,14 @@ Router.prototype.connectionTable = function (version) {
     }
 }
 
-Router.prototype.match = function (obj) {
-    var key = this.extract(obj)
-    return this.routes[0].buckets[fnv(0, new Buffer(key), 0,
-    Buffer.byteLength(key)) & 0xFF].url
+Router.prototype.match = function (connection) {
+    var key = this.extract(connection), delegates = []
+    for (var i = 0, I = this.routes.length; i < I; i++) {
+        delegates.push(this.routes[i].buckets[fnv(0, new Buffer(key), 0, Buffer.byteLength(key)) & 0xFF].url)
+    }
+    return delegates.filter(function (del, i, set) {
+        return (set.indexOf(del) == i)
+    })
 }
 
 Router.prototype.distribute = function (delegates, length, version) {

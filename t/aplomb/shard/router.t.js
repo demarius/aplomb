@@ -19,8 +19,6 @@ function prove(assert) {
 
     assert(router.routes[0].buckets[120].url, delegates[1], 'true')
 
-    assert(delegates.indexOf(router.match({ key: 'shep' })) > -1, 'delegate matched')
-
     router.add('http://192.173.0.14:2381')
     router.add('http://192.173.0.14:2382')
 
@@ -61,4 +59,7 @@ function prove(assert) {
 
     assert((router.connections[0].version[0] == 9), 'connection version\
     managed')
+
+    assert((delegates.indexOf(router.match({username : 'bluer', password:
+    'sass'})[0]) > -1), 'matched')
 }
