@@ -7,19 +7,12 @@ function prove(assert) {
             'http://192.168.0.14:5432/blah/two',
             'http://192.168.0.14:2345'
         ]
-    var unversioned = new r.Router({
-        delegates: delegates,
-        extract: function (obj) {
-            return obj.key
-        }
-    })
-
     var router = new r.Router({
         delegates: delegates,
         extract: function (obj) {
             return obj.username + ':' + obj.password
         },
-        version: 1//,
+        version: '1'//,
         //incrementVersion: function (x) {return x + 2}
     })
     var dist = Math.floor(256, router.routes[0].delegates.length)
@@ -52,15 +45,15 @@ function prove(assert) {
     'distribution reproduced')
 
 
-    router.addConnection(6, { username: 'user', password: 'pass' })
-    router.addConnection(1, { username: 'user', password: 'pass' })
-    router.addConnection(2, { username: 'user', password: 'pass' })
-    router.addConnection(9, { username: 'userr', password: 'ppass' })
-    router.addConnection(9, { username: 'fewer', password: 'sass' })
+    router.addConnection('1.1', { username: 'user', password: 'pass' })
+    router.addConnection('1.2', { username: 'user', password: 'pass' })
+    router.addConnection('2', { username: 'user', password: 'pass' })
+    router.addConnection('9', { username: 'userr', password: 'ppass' })
+    router.addConnection('9', { username: 'fewer', password: 'sass' })
 
     router.removeConnection({ username: 'fewer', password: 'sass' })
 
-    router.addConnection(9, { username: 'bluer', password: 'sass' })
+    router.addConnection('9', { username: 'bluer', password: 'sass' })
 
     router.removeConnection({ username: 'user', password: 'pass' })
 
