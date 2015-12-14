@@ -10,12 +10,13 @@ function Router (options) {
     this.incrementVersion = function (x) {
         return monotonic.increment(x)
     }
-    this.connections = [ this.connectionTable(options.version || 0x1) ]
+    this.connections = [ this.connectionTable(monotonic.parse((options.version ||
+    0x1).toString())) ]
 }
 
 Router.prototype.connectionTable = function (version) {
     return {
-        version: monotonic.parse(version.toString()),
+        version: version,
         connections: new RBTree(function (a, b) {
             a = this.extract(a)
             b = this.extract(b)
