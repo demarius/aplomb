@@ -109,6 +109,9 @@ Router.prototype.addConnection = function (version, connection) {
 // if first, create
     version = monotonic.parse(version.toString())
 
+    var index = this.connections.filter(function (x) {
+        return (monotonic.compare(version, x.version) == 0)
+    })
     this.connections.sort(function (a, b) {
         a = monotonic.compare(a.version, b.version)
             return a < 0 ? -1 : a > 0 ? 1 : 0
