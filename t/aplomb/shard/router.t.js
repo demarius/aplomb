@@ -1,4 +1,4 @@
-require('proof')(7, prove)
+require('proof')(9, prove)
 
 function prove(assert) {
     var r = require('../../../aplomb/router.js')
@@ -55,13 +55,18 @@ function prove(assert) {
     router.addConnection(6, { username: 'user', password: 'pass' })
     router.addConnection(1, { username: 'user', password: 'pass' })
     router.addConnection(2, { username: 'user', password: 'pass' })
-    router.addConnection(9, { username: 'user', password: 'pass' })
+    router.addConnection(9, { username: 'userr', password: 'ppass' })
     router.addConnection(9, { username: 'fewer', password: 'sass' })
+    console.log(router.connections)
 
     router.removeConnection({ username: 'fewer', password: 'sass' })
-    router.removeConnection(2, { username: 'user', password: 'pass' })
 
     router.addConnection(9, { username: 'bluer', password: 'sass' })
 
     router.removeConnection({ username: 'user', password: 'pass' })
+
+    assert((router.connections[0].connections.size == 2), 'tables shredded')
+
+    assert((router.connections[0].version[0] == 9), 'connection version\
+    managed')
 }
