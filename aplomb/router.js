@@ -137,6 +137,15 @@ Router.prototype.removeConnection = function (connection) {
     }
 }
 
+Router.prototype.getConnection = function (connection) {
+    for (var conn, i = 0, I = this.connections.length; i < I; i++) {
+        if (conn = this.connections[i].connections.find(connection)) {
+            return conn
+        }
+    }
+    return null
+}
+
 Router.prototype.evictable = function (delegate) {
     var routerVers = this.routes[0].version
     for (var i = 0, I = this.connections.length; i < I;) {

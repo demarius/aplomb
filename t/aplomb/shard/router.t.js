@@ -1,4 +1,4 @@
-require('proof')(9, prove)
+require('proof')(10, prove)
 
 function prove(assert) {
     var r = require('../../../aplomb/router.js')
@@ -64,4 +64,7 @@ function prove(assert) {
 
     assert((router.evictable('http://192.168.0.14:8080').username == 'user'),
     'evicted old')
+
+    assert((router.getConnection({username: 'user', password: 'pass'}).username
+    == 'user'), 'got connection')
 }
