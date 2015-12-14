@@ -1,4 +1,4 @@
-require('proof')(10, prove)
+require('proof')(14, prove)
 
 function prove(assert) {
     var r = require('../../../aplomb/router.js')
@@ -55,6 +55,7 @@ function prove(assert) {
 
     assert((router.connections[0].connections.size == 2), 'tables shredded')
     router.addConnection('2', { username: 'user', password: 'pass' })
+    router.addConnection('2', { username: 'userr', password: 'ppass' })
 
     assert((router.connections[0].version[0] == 5), 'connection version\
     managed')
@@ -67,4 +68,14 @@ function prove(assert) {
 
     assert((router.getConnection({username: 'user', password: 'pass'}).username
     == 'user'), 'got connection')
+
+    assert((router.getConnection({}) == null), 'not found')
+
+    for (var del in delegates) {
+        var e
+        while (e = router.evictable(delegates[del])) {
+            router.removeConnection(e)
+        }
+        assert((router.evictable(delegates[del]) == null), 'all evicted')
+    }
 }
