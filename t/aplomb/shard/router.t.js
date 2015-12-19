@@ -1,4 +1,4 @@
-require('proof')(14, prove)
+require('proof')(15, prove)
 
 function prove(assert) {
     var Router = require('../../../aplomb.js')
@@ -39,6 +39,10 @@ function prove(assert) {
 
     assert((dist == Math.floor(256, router.routes[0].delegates.length)),
     'distribution reproduced')
+
+    var b = router.connectionTable('12')
+
+    assert((b.version == 12), 'generated connection table')
 
 
     router.addConnection('1', { username: 'user', password: 'pass' })
