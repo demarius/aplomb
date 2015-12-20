@@ -2,7 +2,6 @@ Round-robin in Python with UDP. https://github.com/kmcminn/udprr
 
 Sticky scheduling in Javascript. https://github.com/SocketCluster/loadbalancer
 
-
 main object should keep endpoints. we shouldn't have to govern them equally.
 we should be able to create a new scheduler and give it some endpoints and
 govern them however, and another, governed another way, and why should we
@@ -21,7 +20,3 @@ to check health differently depending on scheduling. shouldn't we know
 already (depending)? we should just give it some endpoints, a health
 mechanism, a scheduling mechanism. Or it will know what health to use.
 I don't know.
-
-# Sharding.
-
-request comes. hash on a request[thing] to find its bucket, send it on its way.
