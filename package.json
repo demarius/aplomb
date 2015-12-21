@@ -13,14 +13,10 @@
   },
   "dependencies": {
     "cadence": "0.4.1",
-    "delta":   "0.0.4",
-    "vizsla":  "0.0.7",
-    "arguable": "0.0.36",
     "hash.fnv": "0.0.0",
     "proof": "0.0.56",
     "monotonic": "0.0.3",
-    "bintrees": "1.0.1",
-    "hash.murmur3.32": "0.0.0"
+    "bintrees": "1.0.1"
   },
   "license": "ISC",
   "bugs": {

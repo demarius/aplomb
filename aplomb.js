@@ -1,5 +1,4 @@
 var RBTree = require('bintrees').RBTree
-var hash = require('hash.murmur3.32')
 var fnv = require('hash.fnv')
 var monotonic = require('monotonic')
 
