@@ -12,7 +12,7 @@
     "url": "git+https://github.com/demarius/aplomb.git"
   },
   "dependencies": {
-    "cadence": "0.4.1",
+    "cadence": "1.0.0",
     "hash.fnv": "0.0.0",
     "proof": "0.0.56",
     "monotonic": "0.0.3",
