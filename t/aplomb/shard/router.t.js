@@ -33,9 +33,11 @@ function prove(assert) {
     }
 
     assert((indices == 51), 'buckets redistributed')
+    router.replaceDelegate('http://192.173.0.14:2382', 'http://192.173.0.14:2383')
+
     router.removeDelegate('http://192.173.0.14:2381')
-    router.removeDelegate('http://192.173.0.14:2382')
-    assert((router.routes[0].version == 5), 'version incremented')
+    router.removeDelegate('http://192.173.0.14:2383')
+    assert((router.routes[0].version == 6), 'version incremented')
 
     assert((dist == Math.floor(256, router.routes[0].delegates.length)),
     'distribution reproduced')
@@ -48,12 +50,12 @@ function prove(assert) {
     router.addConnection('1', { username: 'user', password: 'pass' })
     router.addConnection('2', { username: 'user', password: 'pass' })
     router.addConnection('2', { username: 'user', password: 'pass' })
-    router.addConnection('5', { username: 'userr', password: 'ppass' })
-    router.addConnection('5', { username: 'fewer', password: 'sass' })
+    router.addConnection('6', { username: 'userr', password: 'ppass' })
+    router.addConnection('6', { username: 'fewer', password: 'sass' })
 
     router.removeConnection({ username: 'fewer', password: 'sass' })
 
-    router.addConnection('5', { username: 'bluer', password: 'sass' })
+    router.addConnection('6', { username: 'bluer', password: 'sass' })
 
     router.removeConnection({ username: 'user', password: 'pass' })
 
@@ -61,14 +63,15 @@ function prove(assert) {
     router.addConnection('2', { username: 'user', password: 'pass' })
     router.addConnection('2', { username: 'userr', password: 'ppass' })
 
-    assert((router.connections[0].version[0] == 5), 'connection version\
+    assert((router.connections[0].version[0] == 6), 'connection version\
     managed')
 
     assert((delegates.indexOf(router.getDelegates({username : 'bluer', password:
     'sass'})[0]) > -1), 'matched')
 
-    assert((router.evictable('http://192.168.0.14:8080').username == 'user'),
-    'evicted old')
+    var evict = router.evictable('http://192.168.0.14:8080')
+    console.log(evict)
+    assert((evict.username == 'user'), 'evicted old')
 
     assert((router.getConnection({username: 'user', password: 'pass'}).username
     == 'user'), 'got connection')
@@ -78,6 +81,7 @@ function prove(assert) {
     for (var del = 0, I = delegates.length; del < I; del++) {
         var e
         while (e = router.evictable(delegates[del])) {
+            console.log(e)
             router.removeConnection(e)
         }
         assert((router.evictable(delegates[del]) == null), 'all evicted')

@@ -106,6 +106,25 @@ Router.prototype.removeDelegate = function (delegate) {
     })
 }
 
+Router.prototype.replaceDelegate = function (oldUrl, newUrl) {
+    var delegates = this.routes[0].delegates.slice(),
+    buckets = this.routes[0].buckets.slice()
+    delegates = delegates.splice(oldUrl)
+    delegates.push(newUrl)
+
+    for (var b = 0, I = buckets.length; b < I; b++) {
+        if (this.routes[0].buckets[b].url == oldUrl) {
+            buckets[b].url = newUrl
+        }
+    }
+
+    this.routes.unshift({
+        buckets: buckets,
+        delegates: delegates,
+        version: this.incrementVersion(this.routes[0].version)
+    })
+}
+
 Router.prototype.addConnection = function (version, connection) {
     version = monotonic.parse(version)
 
