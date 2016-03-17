@@ -109,7 +109,7 @@ Router.prototype.removeDelegate = function (delegate) {
 Router.prototype.replaceDelegate = function (oldUrl, newUrl) {
     var delegates = this.routes[0].delegates.slice(),
     buckets = this.routes[0].buckets.slice()
-    delegates = delegates.splice(delegates.indexOf(oldUrl))
+    delegates = delegates.splice(delegates.indexOf(oldUrl), 1)
     delegates.push(newUrl)
 
     for (var b = 0, I = buckets.length; b < I; b++) {
