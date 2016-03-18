@@ -1,4 +1,4 @@
-require('proof')(15, prove)
+require('proof')(16, prove)
 
 function prove(assert) {
     var Router = require('../../../aplomb.js')
@@ -34,6 +34,8 @@ function prove(assert) {
 
     assert((indices == 51), 'buckets redistributed')
     router.replaceDelegate('http://192.173.0.14:2382', 'http://192.173.0.14:2383')
+
+    assert(router.routes[0].delegates.indexOf('http://192.173.0.14:2382') == -1)
 
     router.removeDelegate('http://192.173.0.14:2381')
     router.removeDelegate('http://192.173.0.14:2383')
