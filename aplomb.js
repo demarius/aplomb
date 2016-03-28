@@ -4,7 +4,8 @@ var monotonic = require('monotonic')
 
 function Router (options) {
     this.routes = []
-    options.version = monotonic.parse(options.version)
+    options.version = options.version ?
+        monotonic.parse(options.version) : monotonic.parse('1.0')
     this.distribute(options.delegates, 256, options.version)
     this.extract = options.extract
     this.incrementVersion = function (x) {
