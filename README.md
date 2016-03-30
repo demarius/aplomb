@@ -2,7 +2,9 @@ Load balancer with configurable scheduling and balancing.
 
 
 
-### Sharding:
+### Usage:
+
+Create a router with some delegates and a key extraction function.
 ```
 var router = require('./aplomb')
 
