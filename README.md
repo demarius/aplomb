@@ -16,4 +16,8 @@ router = new router({
         return connection.key },
     version: '1.0'
 })
+
 ```
+
+Add and remove delegates and we'll redistribute for you. Grab the new
+configuration whenever you like.
