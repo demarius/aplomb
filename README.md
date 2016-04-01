@@ -19,5 +19,14 @@ router = new router({
 
 ```
 
-Add and remove delegates and we'll redistribute for you. Grab the new
+Reconfigure as you please; we'll redistribute for you. Grab the new
 configuration whenever you like.
+
+```
+router.addDelegate('http://192.173.0.14:2381')
+router.addDelegate('http://192.173.0.14:2382')
+router.replaceDelegate('http://192.173.0.14:2382', 'http://192.173.0.14:2383')
+router.removeDelegate('http://192.173.0.14:2381')
+
+router.addConnection(3, { key: 'soup' } )
+```
