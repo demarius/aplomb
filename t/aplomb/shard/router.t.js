@@ -1,21 +1,21 @@
 require('proof')(16, prove)
 
 function prove(assert) {
-    var Router = require('../../../aplomb.js')
-    var delegates = [
+    var Router = require('../../../aplomb.js'),
+        delegates = [
             'http://192.168.0.14:8080',
             'http://192.168.0.14:5432/blah/two',
             'http://192.168.0.14:2345'
-        ]
-    var router = new Router({
-        delegates: delegates,
-        extract: function (obj) {
-            return obj.username + ':' + obj.password
-        },
-        version: '1'//,
-        //incrementVersion: function (x) {return x + 2}
-    })
-    var dist = Math.floor(256, router.routes[0].delegates.length)
+        ],
+        router = new Router({
+            delegates: delegates,
+            extract: function (obj) {
+                return obj.username + ':' + obj.password
+            },
+            version: '1'//,
+            //incrementVersion: function (x) {return x + 2}
+        }),
+        dist = Math.floor(256, router.routes[0].delegates.length)
 
     assert(router.routes[0].buckets[120].url, delegates[1], 'true')
 
