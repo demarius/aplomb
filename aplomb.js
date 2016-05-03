@@ -36,11 +36,11 @@ Router.prototype.getDelegates = function (connection) {
 }
 
 Router.prototype.distribute = function (delegates, length, version) {
-    var dist = Math.floor(length / delegates.length)
+    var distribution = Math.floor(length / delegates.length)
     var buckets = []
 
     delegates.forEach(function (del) {
-        for (var i = 0; i < dist; i++) {
+        for (var i = 0; i < distribution; i++) {
             length--
             buckets.push({
                 url: del
@@ -92,10 +92,10 @@ Router.prototype.removeDelegate = function (delegate) {
         }
     }
 
-    var dist = Math.floor(indices.length, this.routes[0].delegates.length - 1)
+    var distribution = Math.floor(indices.length, this.routes[0].delegates.length - 1)
 
     for (var b = 0, I = indices.length; b < I; b++) {
-        for (var i=0; i<dist; i++) {
+        for (var i=0; i<distribution; i++) {
             buckets[indices[b]].url = delegates[i]
         }
     }
