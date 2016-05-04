@@ -15,7 +15,7 @@ function prove(assert) {
             version: '1'//,
             //incrementVersion: function (x) {return x + 2}
         }),
-        dist = Math.floor(256, router.routes[0].delegates.length)
+        distribution = Math.floor(256, router.routes[0].delegates.length)
 
     assert(router.routes[0].buckets[120].url, delegates[1], 'true')
 
@@ -41,7 +41,7 @@ function prove(assert) {
     router.removeDelegate('http://192.173.0.14:2383')
     assert((router.routes[0].version == 6), 'version incremented')
 
-    assert((dist == Math.floor(256, router.routes[0].delegates.length)),
+    assert((distribution == Math.floor(256, router.routes[0].delegates.length)),
     'distribution reproduced')
 
     var b = router.connectionTable('12')
