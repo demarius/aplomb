@@ -148,7 +148,7 @@ Router.prototype.addConnection = function (version, connection) {
 }
 
 Router.prototype.removeConnection = function (connection) {
-   var i=0, indices = []
+   var i = 0, indices = []
    for (var I = this.connections.length; i < I;) {
         var tree = this.connections[i].connections
         tree.remove(connection)
