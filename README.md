@@ -30,3 +30,10 @@ router.removeDelegate('http://192.173.0.14:2381')
 
 router.addConnection(3, { key: 'soup' } )
 ```
+
+
+Use `evictable` to sniff out dead connections.
+
+```
+    var old = router.evictable('http://192.173.0.14:2382')
+```
