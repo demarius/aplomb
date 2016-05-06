@@ -80,8 +80,7 @@ function prove(assert) {
 
     assert((router.getConnection({}) == null), 'not found')
 
-    for (var del = 0, I = delegates.length; del < I; del++) {
-        var e
+    for (var e, del = 0, I = delegates.length; del < I; del++) {
         while (e = router.evictable(delegates[del])) {
             console.log(e)
             router.removeConnection(e)
