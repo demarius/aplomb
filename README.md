@@ -1,7 +1,6 @@
 Load balancer with configurable scheduling and balancing.
 
 
-
 ### Usage:
 
 Create a router with some delegates and a key extraction function.
@@ -35,5 +34,8 @@ router.addConnection(3, { key: 'soup' } )
 Use `evictable` to sniff out dead connections.
 
 ```
-    var old = router.evictable('http://192.173.0.14:2382')
+    var old;
+    while (old = router.evictable('http://192.173.0.14:2382')) {
+        console.log(old)
+    }
 ```
