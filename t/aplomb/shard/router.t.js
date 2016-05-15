@@ -1,3 +1,4 @@
+var monotonic = require('monotonic')
 require('proof')(16, prove)
 
 function prove(assert) {
@@ -12,22 +13,30 @@ function prove(assert) {
             extract: function (obj) {
                 return obj.username + ':' + obj.password
             },
-            version: '1'//,
+            version: '1',
             //incrementVersion: function (x) {return x + 2}
+            sort: function (a, b) {
+                return monotonic.compare(a.version, b.version)
+            }
         }),
-        distribution = Math.floor(256, router.routes[0].delegates.length)
+        table = router.routes.max(),
+        //distribution = Math.floor(256, router.routes[0].delegates.length)
+        distribution = Math.floor(256, table.delegates.length)
 
-    assert(router.routes[0].buckets[120].url, delegates[1], 'true')
+    //assert(router.routes[0].buckets[120].url, delegates[1], 'true')
+    assert(table.buckets[120].url, delegates[1], 'true')
 
     router.addDelegate('http://192.173.0.14:2381')
     router.addDelegate('http://192.173.0.14:2382')
 
-    assert(router.routes[0].delegates.indexOf('http://192.173.0.14:2381') > -1,
+    //assert(router.routes[0].delegates.indexOf('http://192.173.0.14:2381') > -1,
+    assert(router.routes.max().delegates.indexOf('http://192.173.0.14:2381') > -1,
     'delegate added')
 
-    var indices = 0
-    for (var b in router.routes[0].buckets) {
-        if (router.routes[0].buckets[b].url == 'http://192.173.0.14:2381') {
+    var indices = 0, table = router.routes.max()
+    //for (var b in router.routes[0].buckets) {
+    for (var b in table.buckets) {
+        if (table.buckets[b].url == 'http://192.173.0.14:2381') {
             indices++
         }
     }
@@ -35,13 +44,16 @@ function prove(assert) {
     assert((indices == 51), 'buckets redistributed')
     router.replaceDelegate('http://192.173.0.14:2382', 'http://192.173.0.14:2383')
 
-    assert(router.routes[0].delegates.indexOf('http://192.173.0.14:2382') == -1)
+    //assert(router.routes[0].delegates.indexOf('http://192.173.0.14:2382') == -1)
+    assert(router.routes.max().delegates.indexOf('http://192.173.0.14:2382') == -1)
 
     router.removeDelegate('http://192.173.0.14:2381')
     router.removeDelegate('http://192.173.0.14:2383')
-    assert((router.routes[0].version == 6), 'version incremented')
+    //assert((router.routes[0].version == 6), 'version incremented')
+    assert((router.routes.max().version == 6), 'version incremented')
 
-    assert((distribution == Math.floor(256, router.routes[0].delegates.length)),
+    //assert((distribution == Math.floor(256, router.routes[0].delegates.length)),
+    assert((distribution == Math.floor(256, router.routes.max().delegates.length)),
     'distribution reproduced')
 
     var b = router.connectionTable('12')
