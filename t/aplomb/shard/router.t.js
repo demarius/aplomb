@@ -1,5 +1,5 @@
 var monotonic = require('monotonic')
-require('proof')(16, prove)
+require('proof')(17, prove)
 
 function prove(assert) {
     var Router = require('../../../aplomb.js'),
@@ -99,4 +99,6 @@ function prove(assert) {
         }
         assert((router.evictable(delegates[del]) == null), 'all evicted')
     }
+
+    assert(router.getTable({ version: monotonic.parse('2.0') }).version[0] == 2, 'fetched table')
 }
