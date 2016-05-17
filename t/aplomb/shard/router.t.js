@@ -12,13 +12,13 @@ function prove(assert) {
             delegates: delegates,
             incrementVersion: function (x) {return x + 1},
             sort: function (a, b) {
-                return a.key - b.key
+                return a - b
             },
             extract: function (obj) {
                 return obj.username + ':' + obj.password
             }
         }),
-        table = router.routes.max().table,
+        table = router.delegations.max().table,
         distribution = Math.floor(256, table.delegates.length)
 
     assert(table.buckets[120].url, delegates[1], 'true')
@@ -28,10 +28,10 @@ function prove(assert) {
     table = router.addDelegate('http://192.173.0.14:2382')
     router.addTable(table, 3)
 
-    assert(router.routes.max().table.delegates.indexOf('http://192.173.0.14:2381') > -1,
+    assert(router.delegations.max().table.delegates.indexOf('http://192.173.0.14:2381') > -1,
     'delegate added')
 
-    var indices = 0, table = router.routes.max().table
+    var indices = 0, table = router.delegations.max().table
     for (var b in table.buckets) {
         if (table.buckets[b].url == 'http://192.173.0.14:2381') {
             indices++
@@ -43,21 +43,21 @@ function prove(assert) {
     table = router.replaceDelegate('http://192.173.0.14:2382', 'http://192.173.0.14:2383')
     router.addTable(table, 4)
 
-    assert(router.routes.max().table.delegates.indexOf('http://192.173.0.14:2382') == -1)
+    assert(router.delegations.max().table.delegates.indexOf('http://192.173.0.14:2382') == -1)
 
     table = router.removeDelegate('http://192.173.0.14:2381')
     router.addTable(table, 5)
     table = router.removeDelegate('http://192.173.0.14:2383')
     router.addTable(table, 6)
 
-    assert((router.routes.max().key == 6), 'version incremented')
+    assert((router.delegations.max().key == 6), 'version incremented')
 
-    assert((distribution == Math.floor(256, router.routes.max().table.delegates.length)),
+    assert((distribution == Math.floor(256, router.delegations.max().table.delegates.length)),
     'distribution reproduced')
 
-    var b = router.connectionTable('12')
+    var b = router.connectionTree(12)
 
-    assert((b.version == 12), 'generated connection table')
+    assert((b.key == 12), 'generated connection table')
 
 
     router.addConnection(1, { username: 'user', password: 'pass' })
@@ -72,11 +72,12 @@ function prove(assert) {
 
     router.removeConnection({ username: 'user', password: 'pass' })
 
-    assert((router.connections[0].connections.size == 2), 'tables shredded')
+    console.log(router.connections.max())
+    assert((router.connections.size == 2), 'tables shredded')
     router.addConnection(2, { username: 'user', password: 'pass' })
     router.addConnection(2, { username: 'userr', password: 'ppass' })
 
-    assert((router.connections[0].version[0] == 6), 'connection version\
+    assert((router.connections.max().key == 6), 'connection version\
     managed')
 
     assert((delegates.indexOf(router.getDelegates({username : 'bluer', password:
