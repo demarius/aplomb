@@ -1,35 +1,32 @@
 var RBTree = require('bintrees').RBTree
 var fnv = require('hash.fnv')
-var monotonic = require('monotonic')
 
 function Router (options) {
     //this.routes = []
     this.routes = new RBTree(options.sort)
-    options.version = options.version ?
-        monotonic.parse(options.version) : monotonic.parse('1.0')
+    options.version = options.version || 1
     this.distribute(options.delegates, 256, options.version)
     this.extract = options.extract
-    this.incrementVersion = function (x) {
-        return monotonic.increment(x)
-    }
-    this.connections = [ this.connectionTable(options.version) ]
+    this.incrementVersion = options.incrementVersion
+    this.connections = [
+        this.connectionTable(
+            options.version,
+            options.incrementVersion)
+    ]
 }
 
 Router.prototype.connectionTable = function (version) {
     return {
         version: version,
-        connections: new RBTree(function (a, b) {
-            a = this.extract(a)
-            b = this.extract(b)
-            return a < b ? -1 : a > b ? 1 : 0
-        }.bind(this))
+        connections: new RBTree(this.incrementVersion)
     }
 }
 
 Router.prototype.getDelegates = function (connection) {
-    var key = this.extract(connection), delegates = [], table = this.routes.max()
+    var key = this.extract(connection), delegates = [], table = this.routes.max().table
     //for (var i = 0, I = this.routes.length; i < I; i++) {
     this.routes.each(function (table) {
+        table = table.table
         //delegates.push(this.routes[i].buckets[fnv(0, new Buffer(key), 0, Buffer.byteLength(key)) & 0xFF].url)
         delegates.push(table.buckets[fnv(0, new Buffer(key), 0, Buffer.byteLength(key)) & 0xFF].url)
     })
@@ -57,15 +54,19 @@ Router.prototype.distribute = function (delegates, length, version) {
 
     //this.routes.unshift({ buckets: buckets, delegates: delegates, version: version })
     this.routes.insert({
-        buckets: buckets,
-        delegates: delegates,
-        version: version
-    })
+            table: {
+                buckets: buckets,
+                delegates: delegates,
+                version: version
+            },
+            key: version
+        })
+    //return { buckets: buckets, delegates: delegates }
 
 }
 
 Router.prototype.addDelegate = function (delegate) {
-    var table = this.routes.max(),
+    var table = this.routes.max().table,
         delegates = table.delegates.slice(),
         buckets = table.buckets.slice(),
         redist = Array.apply(null, Array(delegates.length)).map(Number.prototype.valueOf, 0)
@@ -82,15 +83,12 @@ Router.prototype.addDelegate = function (delegate) {
     }
 
     //this.routes.unshift({ buckets: buckets, delegates: delegates, version : this.incrementVersion(this.routes[0].version) })
-    this.routes.insert({
-        buckets: buckets,
-        delegates: delegates,
-        version : this.incrementVersion(table.version)
-    })
+    //this.routes.insert({ buckets: buckets, delegates: delegates, version : this.incrementVersion(table.version) })
+    return { buckets: buckets, delegates: delegates }
 }
 
 Router.prototype.removeDelegate = function (delegate) {
-    var table = this.routes.max(),
+    var table = this.routes.max().table,
         delegates = table.delegates.slice(),
         buckets = table.buckets.slice(), indices = []
         delegates = delegates.splice(delegates.indexOf(delegate), 1)
@@ -110,15 +108,12 @@ Router.prototype.removeDelegate = function (delegate) {
     }
 
     //this.routes.unshift({ buckets: buckets, delegates: delegates, version: this.incrementVersion(this.routes[0].version) })
-    this.routes.insert({
-        buckets: buckets,
-        delegates: delegates,
-        version: this.incrementVersion(table.version)
-    })
+    //this.routes.insert({ buckets: buckets, delegates: delegates, version: this.incrementVersion(table.version) })
+    return { buckets: buckets, delegates: delegates }
 }
 
 Router.prototype.replaceDelegate = function (oldUrl, newUrl) {
-    var table = this.routes.max(),
+    var table = this.routes.max().table,
         delegates = table.delegates.slice(),
         buckets = table.buckets.slice()
 
@@ -135,22 +130,20 @@ Router.prototype.replaceDelegate = function (oldUrl, newUrl) {
     }
 
     //this.routes.unshift({ buckets: buckets, delegates: delegates, version: this.incrementVersion(this.routes[0].version) })
-    this.routes.insert({
-        buckets: buckets,
-        delegates: delegates,
-        version: this.incrementVersion(table.version)
-    })
+    //this.routes.insert({ buckets: buckets, delegates: delegates, version: this.incrementVersion(table.version) })
+    return { buckets: buckets, delegates: delegates }
 }
 
 Router.prototype.addConnection = function (version, connection) {
-    version = monotonic.parse(version)
     var i = 0, I
 
     for (var compare, I = this.connections.length; i < I; i++) {
-        compare = monotonic.compare(version, this.connections[i].version)
-        if (compare == 0) {
+        console.log(connection)
+        if (version == compare) {
+            console.log('same version')
             break
-        } else if (compare > 0) {
+        } else if (version > compare) {
+            console.log('newer version')
             this.connections.splice(i, 0, this.connectionTable(version))
             break
         }
@@ -192,28 +185,39 @@ Router.prototype.getTable = function (table) {
     return null
 }
 
-Router.prototype.evictable = function (delegate) {
-    var routerVers = this.routes.max().version
-    for (var i = 0, I = this.connections.length; i < I;) {
-        var compare = monotonic.compare(routerVers, this.connections[i].version)
-        if (compare <= 0) {
-            i++
-            continue
-        }
+Router.prototype.rebalance = function (url) {
+}
 
-        while (this.connections[i].connections.size > 0) {
-            var min = this.connections[i].connections.min(),
-                current = this.getDelegates(min)
-            if (current == delegate) {
+Router.prototype.addTable = function (table, key) {
+    this.routes.insert({
+        table: table,
+        key: key
+    })
+}
+
+Router.prototype.evictable = function (delegate) {
+    var current, min, table, max, iterator, key = this.routes.max().key
+    for (var i = 0, I = this.connections.length; i < I;) {
+
+        iterator = this.connections[i].connections.iterator()
+        max = iterator.prev()
+
+        while (table = iterator.prev()) {
+            min = table.min()
+            current = this.getDelegates(min)
+
+            if (current.indexOf(delegate)) {
                 this.connections[i].connections.remove(min)
-                this.addConnection(monotonic.toString(routerVers), min)
+                this.addConnection(key, min)
             } else {
-                return min
+            return min
             }
         }
+
         this.connections.splice(i, 1)
         I--
     }
+
     return null
 }
 
