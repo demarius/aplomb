@@ -3,18 +3,21 @@ var fnv = require('hash.fnv')
 
 function Router (options) {
     //this.delegations = []
+    this.sort = options.sort
     this.delegations = new RBTree(function (a, b) { return options.sort(a.key, b.key) })
-    options.version = options.version || 1
     this.extract = options.extract
     this.incrementVersion = options.incrementVersion
     this.connections = new RBTree(function (a, b) { return options.sort(a.key, b.key) })
-    this.connections.insert( this.connectionTree(options.version) )
 }
 
 Router.prototype.connectionTree = function (version) {
     return {
         key: version,
-        connections: new RBTree(this.incrementVersion)
+        connections: new RBTree(function (a, b) {
+            a = this.extract(a)
+            b = this.extract(b)
+            return a < b ? -1 : a > b ? 1 : 0
+        }.bind(this))
     }
 }
 
@@ -171,11 +174,22 @@ Router.prototype.removeConnection = function (connection) {
 }
 
 Router.prototype.getConnection = function (connection) {
+    /*
     for (var conn, i = 0, I = this.connections.length; i < I; i++) {
         if (conn = this.connections[i].connections.find(connection)) {
             return conn
         }
     }
+    return null
+    */
+    var delegate, tree, iterator = this.connections.iterator()
+
+    while (tree = iterator.prev()) {
+        if (delegate = tree.connections.find(connection)) {
+            return delegate
+        }
+    }
+
     return null
 }
 
@@ -197,26 +211,26 @@ Router.prototype.addTable = function (table, key) {
 }
 
 Router.prototype.evictable = function (delegate) {
-    var current, min, table, max, iterator, key = this.delegations.max().key
-    for (var i = 0, I = this.connections.length; i < I;) {
+    var tree, current, min, tree, max, iterator, key = this.delegations.max().key,
+        connections = this.connections.iterator()
+    //for (var i = 0, I = this.connections.length; i < I;) {
+    max = connections.prev()
+    while (tree = connections.prev()) {
 
-        iterator = this.connections[i].connections.iterator()
-        max = iterator.prev()
 
-        while (table = iterator.prev()) {
-            min = table.min()
+        while (tree.connections.size > 0) {
+            min = tree.connections.min()
             current = this.getDelegates(min)
 
             if (current.indexOf(delegate)) {
-                this.connections[i].connections.remove(min)
+                tree.connections.remove(min)
                 this.addConnection(key, min)
             } else {
-            return min
+                return min
             }
         }
 
-        this.connections.splice(i, 1)
-        I--
+        this.connections.remove(tree)
     }
 
     return null
