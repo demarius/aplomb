@@ -84,19 +84,20 @@ function prove(assert) {
     router.addConnection(2, { username: 'user', password: 'pass' })
     router.addConnection(2, { username: 'userr', password: 'ppass' })
 
-    assert((router.connections.max().key == 6), 'connection version\
-    managed')
+    assert((router.connections.max().key == 6), 'connection version managed')
 
     assert((delegates.indexOf(router.getDelegates({username : 'bluer', password:
     'sass'})[0]) > -1), 'matched')
+    table = router.removeDelegate('http://192.173.0.14:8080')
+    router.addTable(table, 9)
 
     var evict = router.evictable('http://192.168.0.14:8080')
     console.log('evicted', evict)
-    /*
-    assert((evict.username == 'user'), 'evicted old')
+    //assert((evict.username == 'user'), 'evicted old')
 
-    assert((router.getConnection({username: 'user', password: 'pass'}).username
-    == 'user'), 'got connection')
+    console.log(router.getConnection({username: 'userr', password: 'ppass'}))
+    assert((router.getConnection({username: 'userr', password: 'ppass'}).username
+    == 'userr'), 'got connection')
 
     assert((router.getConnection({}) == null), 'not found')
 
@@ -108,6 +109,5 @@ function prove(assert) {
         assert((router.evictable(delegates[del]) == null), 'all evicted')
     }
 
-    assert(router.getTable({ version: monotonic.parse('2.0') }).version[0] == 2, 'fetched table')
-    */
+    assert(router.getTable({ key: 2 }).key == 2, 'fetched table')
 }
