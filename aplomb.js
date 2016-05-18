@@ -82,28 +82,37 @@ Router.prototype.addDelegate = function (delegate) {
 }
 
 Router.prototype.removeDelegate = function (delegate) {
-    var table = this.delegations.max().table,
-        delegates = table.delegates.slice(),
-        buckets = table.buckets.slice(), indices = []
-        delegates = delegates.splice(delegates.indexOf(delegate), 1)
 
-    for (var b = 0, I = buckets.length; b < I; b++) {
-        if (table.buckets[b].url == delegate) {
-            indices.push(b)
+    if (this.delegations.size) {
+        var table = this.delegations.max().table,
+            delegates = table.delegates.slice(),
+            buckets = table.buckets.slice(), indices = []
+
+        if (delegates.length > 1) {
+            delegates = delegates.splice(delegates.indexOf(delegate), 1)
+
+            for (var b = 0, I = buckets.length; b < I; b++) {
+                if (table.buckets[b].url == delegate) {
+                    indices.push(b)
+                }
+            }
+
+            var distribution = Math.floor(indices.length, table.delegates.length - 1)
+
+            for (var b = 0, I = indices.length; b < I; b++) {
+                for (var i=0; i<distribution; i++) {
+                    buckets[indices[b]].url = delegates[i]
+                }
+            }
+
+            return { buckets: buckets, delegates: delegates }
         }
+
+        //this.delegations.unshift({ buckets: buckets, delegates: delegates, version: this.incrementVersion(this.delegations[0].version) })
+        //this.delegations.insert({ buckets: buckets, delegates: delegates, version: this.incrementVersion(table.version) })
     }
 
-    var distribution = Math.floor(indices.length, table.delegates.length - 1)
-
-    for (var b = 0, I = indices.length; b < I; b++) {
-        for (var i=0; i<distribution; i++) {
-            buckets[indices[b]].url = delegates[i]
-        }
-    }
-
-    //this.delegations.unshift({ buckets: buckets, delegates: delegates, version: this.incrementVersion(this.delegations[0].version) })
-    //this.delegations.insert({ buckets: buckets, delegates: delegates, version: this.incrementVersion(table.version) })
-    return { buckets: buckets, delegates: delegates }
+    return this.distribute([ null ], 256)
 }
 
 Router.prototype.replaceDelegate = function (oldUrl, newUrl) {
