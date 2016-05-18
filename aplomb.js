@@ -5,7 +5,6 @@ function Router (options) {
     //this.delegations = []
     this.delegations = new RBTree(function (a, b) { return options.sort(a.key, b.key) })
     options.version = options.version || 1
-    this.distribute(options.delegates, 256, options.version)
     this.extract = options.extract
     this.incrementVersion = options.incrementVersion
     this.connections = new RBTree(function (a, b) { return options.sort(a.key, b.key) })
@@ -21,10 +20,8 @@ Router.prototype.connectionTree = function (version) {
 
 Router.prototype.getDelegates = function (connection) {
     var key = this.extract(connection), delegates = [], table = this.delegations.max().table
-    //for (var i = 0, I = this.delegations.length; i < I; i++) {
     this.delegations.each(function (table) {
         table = table.table
-        //delegates.push(this.delegations[i].buckets[fnv(0, new Buffer(key), 0, Buffer.byteLength(key)) & 0xFF].url)
         delegates.push(table.buckets[fnv(0, new Buffer(key), 0, Buffer.byteLength(key)) & 0xFF].url)
     })
     return delegates.filter(function (del, i, set) {
@@ -32,7 +29,7 @@ Router.prototype.getDelegates = function (connection) {
     })
 }
 
-Router.prototype.distribute = function (delegates, length, version) {
+Router.prototype.distribute = function (delegates, length) {
     var distribution = Math.floor(length / delegates.length)
     var buckets = []
 
@@ -49,42 +46,39 @@ Router.prototype.distribute = function (delegates, length, version) {
         buckets.push({ url: delegates[delegates.length - 1] })
     }
 
-    //this.delegations.unshift({ buckets: buckets, delegates: delegates, version: version })
-    this.delegations.insert({
-            table: {
-                buckets: buckets,
-                delegates: delegates,
-                version: version
-            },
-            key: version
-        })
-    //return { buckets: buckets, delegates: delegates }
+    return { buckets: buckets, delegates: delegates }
 
 }
 
 Router.prototype.addDelegate = function (delegate) {
-    var table = this.delegations.max().table,
-        delegates = table.delegates.slice(),
-        buckets = table.buckets.slice(),
-        redist = Array.apply(null, Array(delegates.length)).map(Number.prototype.valueOf, 0)
 
-    delegates.push(delegate)
+    if (this.delegations.size) {
+        var table, delegates, buckets, redist
 
-    var dist = Math.floor(buckets.length / delegates.length)
-    dist = Math.floor(dist / (delegates.length - 1))
+        table = this.delegations.max().table
+        buckets = table.buckets.slice()
+        delegates = table.delegates.slice()
 
-    for (var b = 0, I = buckets.length; b < I; b++) {
-        if (redist[delegates.indexOf(buckets[b].url)] == dist) continue
-        redist[delegates.indexOf(buckets[b].url)] += 1
-        buckets[b].url = delegate
+        if (delegates.length) {
+            redist = Array.apply(null, Array(delegates.length)).map(Number.prototype.valueOf, 0)
+
+            delegates.push(delegate)
+
+            var dist = Math.floor(buckets.length / delegates.length)
+            dist = Math.floor(dist / (delegates.length - 1))
+
+            for (var b = 0, I = buckets.length; b < I; b++) {
+                if (redist[delegates.indexOf(buckets[b].url)] == dist) continue
+                redist[delegates.indexOf(buckets[b].url)] += 1
+                buckets[b].url = delegate
+            }
+
+            return { buckets: buckets, delegates: delegates }
+        }
     }
 
-    //this.delegations.unshift({ buckets: buckets, delegates: delegates, version : this.incrementVersion(this.delegations[0].version) })
-    //this.delegations.insert({ buckets: buckets, delegates: delegates, version : this.incrementVersion(table.version) })
-    
-    var blah = { buckets: buckets, delegates: delegates }
-    console.log(blah)
-        return blah
+    return this.distribute([ delegate ], 256)
+
 }
 
 Router.prototype.removeDelegate = function (delegate) {
@@ -161,7 +155,7 @@ Router.prototype.removeConnection = function (connection) {
 
     while (tree = iterator.prev()) {
         tree.connections.remove(connection)
-        if (tree.connections.size == 0) {
+        if (tree.size == 0) {
             this.connections.remove(tree)
         }
     }
@@ -184,9 +178,6 @@ Router.prototype.getTable = function (table) {
     }
 
     return null
-}
-
-Router.prototype.rebalance = function (url) {
 }
 
 Router.prototype.addTable = function (table, key) {
