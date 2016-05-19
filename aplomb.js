@@ -1,7 +1,7 @@
 var RBTree = require('bintrees').RBTree
 var fnv = require('hash.fnv')
 
-function Router (options) {
+function Aplomb (options) {
     //this.delegations = []
     this.sort = options.sort
     this.delegations = new RBTree(function (a, b) { return options.sort(a.key, b.key) })
@@ -10,7 +10,7 @@ function Router (options) {
     this.connections = new RBTree(function (a, b) { return options.sort(a.key, b.key) })
 }
 
-Router.prototype.connectionTree = function (version) {
+Aplomb.prototype.connectionTree = function (version) {
     return {
         key: version,
         connections: new RBTree(function (a, b) {
@@ -21,7 +21,7 @@ Router.prototype.connectionTree = function (version) {
     }
 }
 
-Router.prototype.getDelegates = function (connection) {
+Aplomb.prototype.getDelegates = function (connection) {
     var key = this.extract(connection), delegates = [], table = this.delegations.max().table
     this.delegations.each(function (table) {
         table = table.table
@@ -32,7 +32,7 @@ Router.prototype.getDelegates = function (connection) {
     })
 }
 
-Router.prototype.distribute = function (delegates, length) {
+Aplomb.prototype.distribute = function (delegates, length) {
     var distribution = Math.floor(length / delegates.length)
     var buckets = []
 
@@ -53,7 +53,7 @@ Router.prototype.distribute = function (delegates, length) {
 
 }
 
-Router.prototype.addDelegate = function (delegate) {
+Aplomb.prototype.addDelegate = function (delegate) {
 
     if (this.delegations.size) {
         var table, delegates, buckets, redist
@@ -84,7 +84,7 @@ Router.prototype.addDelegate = function (delegate) {
 
 }
 
-Router.prototype.removeDelegate = function (delegate) {
+Aplomb.prototype.removeDelegate = function (delegate) {
 
     if (this.delegations.size) {
         var table = this.delegations.max().table,
@@ -118,7 +118,7 @@ Router.prototype.removeDelegate = function (delegate) {
     return this.distribute([ null ], 256)
 }
 
-Router.prototype.replaceDelegate = function (oldUrl, newUrl) {
+Aplomb.prototype.replaceDelegate = function (oldUrl, newUrl) {
     var table = this.delegations.max().table,
         delegates = table.delegates.slice(),
         buckets = table.buckets.slice()
@@ -140,7 +140,7 @@ Router.prototype.replaceDelegate = function (oldUrl, newUrl) {
     return { buckets: buckets, delegates: delegates }
 }
 
-Router.prototype.addConnection = function (key, connection) {
+Aplomb.prototype.addConnection = function (key, connection) {
     var tree
     if (tree = this.connections.find(key)) {
         tree.connections.insert(connection)
@@ -151,7 +151,7 @@ Router.prototype.addConnection = function (key, connection) {
     }
 }
 
-Router.prototype.removeConnection = function (connection) {
+Aplomb.prototype.removeConnection = function (connection) {
     /*
    var i = 0, indices = []
    for (var I = this.connections.length; i < I;) {
@@ -173,7 +173,7 @@ Router.prototype.removeConnection = function (connection) {
     }
 }
 
-Router.prototype.getConnection = function (connection) {
+Aplomb.prototype.getConnection = function (connection) {
     /*
     for (var conn, i = 0, I = this.connections.length; i < I; i++) {
         if (conn = this.connections[i].connections.find(connection)) {
@@ -193,7 +193,7 @@ Router.prototype.getConnection = function (connection) {
     return null
 }
 
-Router.prototype.getTable = function (table) {
+Aplomb.prototype.getTable = function (table) {
     var delegations
 
     if (delegations = this.delegations.find(table)) {
@@ -203,14 +203,14 @@ Router.prototype.getTable = function (table) {
     return null
 }
 
-Router.prototype.addTable = function (table, key) {
+Aplomb.prototype.addTable = function (table, key) {
     this.delegations.insert({
         table: table,
         key: key
     })
 }
 
-Router.prototype.evictable = function (delegate) {
+Aplomb.prototype.evictable = function (delegate) {
     var tree, current, min, tree, max, iterator, key = this.delegations.max().key,
         connections = this.connections.iterator()
     //for (var i = 0, I = this.connections.length; i < I;) {
@@ -236,4 +236,4 @@ Router.prototype.evictable = function (delegate) {
     return null
 }
 
-module.exports = Router
+module.exports = Aplomb
