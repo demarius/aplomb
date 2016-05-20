@@ -1,8 +1,8 @@
 var monotonic = require('monotonic')
-require('proof')(17, prove)
+require('proof')(13, prove)
 
 function prove(assert) {
-    var Router = require('../../../aplomb.js'),
+    var Aplomb = require('../../../aplomb.js'),
         delegates = [
             'http://192.168.0.14:8080',
             'http://192.168.0.14:5432/blah/two',
@@ -21,7 +21,7 @@ function prove(assert) {
     delegates.forEach(function (del, i) {
         table = router.addDelegate(del)
         console.log(table)
-        router.addTable(table, i + 1)
+        router.addDelegation(table, i + 1)
     })
 
     table = router.delegations.max().table,
@@ -30,9 +30,9 @@ function prove(assert) {
     assert(table.buckets[120].url, delegates[1], 'true')
 
     table = router.addDelegate('http://192.173.0.14:2381')
-    router.addTable(table, 4)
+    router.addDelegation(table, 4)
     table = router.addDelegate('http://192.173.0.14:2382')
-    router.addTable(table, 5)
+    router.addDelegation(table, 5)
 
     assert(router.delegations.max().table.delegates.indexOf('http://192.173.0.14:2381') > -1,
     'delegate added')
@@ -47,14 +47,14 @@ function prove(assert) {
     assert((indices == 51), 'buckets redistributed')
 
     table = router.replaceDelegate('http://192.173.0.14:2382', 'http://192.173.0.14:2383')
-    router.addTable(table, 6)
+    router.addDelegation(table, 6)
 
     assert(router.delegations.max().table.delegates.indexOf('http://192.173.0.14:2382') == -1, 'delegate replaced')
 
     table = router.removeDelegate('http://192.173.0.14:2381')
-    router.addTable(table, 7)
+    router.addDelegation(table, 7)
     table = router.removeDelegate('http://192.173.0.14:2383')
-    router.addTable(table, 8)
+    router.addDelegation(table, 8)
 
     assert((router.delegations.max().key == 8), 'version incremented')
 
