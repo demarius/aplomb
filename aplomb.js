@@ -28,9 +28,6 @@ Aplomb.prototype.getIndex = function (connection) {
     return hash % this.bucketCount
 }
 
-Aplomb.prototype._key = function (connection) {
-}
-
 Aplomb.prototype.getDelegates = function (connection) {
     var index = this.getIndex(connection),
         delegates = []
@@ -131,24 +128,29 @@ Aplomb.prototype.removeDelegate = function (delegate) {
     return { buckets: null, delegates: [] }
 }
 
-Aplomb.prototype.replaceDelegate = function (oldUrl, newUrl) {
-    var table = this.delegations.max().table,
-        delegates = table.delegates.slice(),
-        buckets = table.buckets.slice()
+Aplomb.prototype.replaceDelegate = function (oldDelegate, newDelegate) {
+    var delegation = this.delegations.max(),
+        buckets = delegation.buckets.slice()
 
-    delegates = delegates.filter(function (del) {
-        return (del !== oldUrl)
+    delegates = delegation.delegates.map(function (delegate) {
+        return delegate == oldDelegate ? newDelegate : delegate
     })
 
-    delegates.push(newUrl)
-
     for (var b = 0, I = buckets.length; b < I; b++) {
-        if (table.buckets[b].url == oldUrl) {
-            buckets[b].url = newUrl
+        if (table.buckets[b].url == oldDelegate) {
+            buckets[b].url = newDelegate
         }
     }
 
     return { buckets: buckets, delegates: delegates }
+}
+
+Array.prototype.getDelegations = function () {
+    var delegations = []
+    this.delegations.reach(function (delegation) {
+        delegations.push(delegation)
+    })
+    return delegations
 }
 
 Aplomb.prototype.addConnection = function (key, connection) {
