@@ -2,11 +2,13 @@ var RBTree = require('bintrees').RBTree
 var fnv = require('hash.fnv')
 
 function Aplomb (options) {
-    this.sort = options.sort
-    this.delegations = new RBTree(function (a, b) { return options.sort(a.key, b.key) })
+    this.compare = options.compare
+    this.delegations = new RBTree(compare)
     this.extract = options.extract
-    this.incrementVersion = options.incrementVersion
-    this.connections = new RBTree(function (a, b) { return options.sort(a.key, b.key) })
+    this.bucketCount = options.bucketCount
+    this.connections = new RBTree(compare)
+
+    function compare (a, b) { return options.compare(a.key, b.key) }
 }
 
 Aplomb.prototype.connectionTree = function (version) {
@@ -20,15 +22,34 @@ Aplomb.prototype.connectionTree = function (version) {
     }
 }
 
+Aplomb.prototype.getIndex = function (connection) {
+    var key = this.extract(connection),
+        hash = fnv(0, new Buffer(key), 0, Buffer.byteLength(key))
+    return hash % this.bucketCount
+}
+
+Aplomb.prototype._key = function (connection) {
+}
+
 Aplomb.prototype.getDelegates = function (connection) {
-    var key = this.extract(connection), delegates = [], table = this.delegations.max().table
-    this.delegations.each(function (table) {
-        table = table.table
-        delegates.push(table.buckets[fnv(0, new Buffer(key), 0, Buffer.byteLength(key)) & 0xFF].url)
+    var index = this.getIndex(connection),
+        delegates = []
+
+    this.delegations.reach(function (delegation) {
+        if (delegation.delegates.length ! = 0) {
+            delegates.push(delegates.bucket[index])
+        }
     })
+
     return delegates.filter(function (del, i, set) {
         return (set.indexOf(del) == i)
     })
+}
+
+Aplomb.prototype.getDelegate = function (connection) {
+    var delegation = this.delegations.max()
+    if (delegation == null || delegation.delegates.length == 0) return null
+    return delegation.buckets[this.getIndex(connection)]
 }
 
 Aplomb.prototype.distribute = function (delegates, length) {
@@ -55,63 +76,59 @@ Aplomb.prototype.distribute = function (delegates, length) {
 Aplomb.prototype.addDelegate = function (delegate) {
 
     if (this.delegations.size) {
-        var table, delegates, buckets, redist
-
-        table = this.delegations.max().table
-        buckets = table.buckets.slice()
-        delegates = table.delegates.slice()
+        var delegation = this.delegations.max(),
+            delegates = delegation.delegates
 
         if (delegates.length) {
-            redist = Array.apply(null, Array(delegates.length)).map(Number.prototype.valueOf, 0)
+            var buckets = delegation.buckets.slice(),
+                redist = Array.apply(null, Array(delegates.length)).map(Number.prototype.valueOf, 0)
 
             delegates.push(delegate)
 
-            var dist = Math.floor(buckets.length / delegates.length)
-            dist = Math.floor(dist / (delegates.length - 1))
+            var total = Math.floor(buckets.length / delegates.length)
+            var each = Math.floor(total / (delegates.length - 1))
 
-            for (var b = 0, I = buckets.length; b < I; b++) {
-                if (redist[delegates.indexOf(buckets[b].url)] == dist) continue
-                redist[delegates.indexOf(buckets[b].url)] += 1
-                buckets[b].url = delegate
+            for (var b = 0, I = buckets.length; b < I && total; b++) {
+                if (redist[delegates.indexOf(buckets[b])] == each) continue
+                redist[delegates.indexOf(buckets[b])] += 1
+                buckets[b] = delegate
+                total--
             }
 
             return { buckets: buckets, delegates: delegates }
         }
     }
 
-    return this.distribute([ delegate ], 256)
+    return {
+        buckets: Array.apply(null, Array(this.bucketCount)).map(String.prototype.toString, delegate),
+        delegates: [ delegate ]
+    }
 
 }
 
 Aplomb.prototype.removeDelegate = function (delegate) {
+    assert(this.delegations.size, 'No delegations found')
 
-    if (this.delegations.size) {
-        var table = this.delegations.max().table,
-            delegates = table.delegates.slice(),
-            buckets = table.buckets.slice(), indices = []
+    var delegation = this.delegations.max()
+    if (delegation.delegates.length > 1) {
+        var delegates = delegation.delegates.slice(),
+            buckets = delegation.buckets.slice(),
+            index = delegates.indexOf(delegate)
 
-        if (delegates.length > 1) {
-            delegates = delegates.splice(delegates.indexOf(delegate), 1)
+        assert(~index, 'index not found')
+        delegates.splice(index, 1)
 
-            for (var b = 0, I = buckets.length; b < I; b++) {
-                if (table.buckets[b].url == delegate) {
-                    indices.push(b)
-                }
+        for (var i = 0, b = 0, I = buckets.length; b < I; b++) {
+            if (buckets[b] == delegate) {
+                buckets[b] = delegates[i++ % delegates.length]
             }
-
-            var distribution = Math.floor(indices.length, table.delegates.length - 1)
-
-            for (var b = 0, I = indices.length; b < I; b++) {
-                for (var i=0; i<distribution; i++) {
-                    buckets[indices[b]].url = delegates[i]
-                }
-            }
-
-            return { buckets: buckets, delegates: delegates }
         }
+
+
+        return { buckets: buckets, delegates: delegates }
     }
 
-    return this.distribute([ null ], 256)
+    return { buckets: null, delegates: [] }
 }
 
 Aplomb.prototype.replaceDelegate = function (oldUrl, newUrl) {
