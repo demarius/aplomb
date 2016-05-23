@@ -13,14 +13,14 @@ function Aplomb (options) {
 }
 
 Aplomb.prototype.getIndex = function (connection) {
-    var key = this.extract(connection)
-    var hash = fnv(0, new Buffer(key), 0, Buffer.byteLength(key))
+    var key = this.extract(connection),
+        hash = fnv(0, new Buffer(key), 0, Buffer.byteLength(key))
     return hash % this.bucketCount
 }
 
 Aplomb.prototype.getDelegates = function (connection) {
-    var index = this.getIndex(connection)
-    var delegates = []
+    var index = this.getIndex(connection),
+        delegates = []
     this.delegations.reach(function (delegation) {
         if (delegation.delegates.length != 0) {
             delegates.push(delegation.buckets[index])
@@ -41,8 +41,8 @@ Aplomb.prototype.getDelegate = function (connection) {
 
 Aplomb.prototype.addDelegate = function (delegate) {
     if (this.delegations.size) {
-        var delegation = this.delegations.max()
-        var delegates = delegation.delegates
+        var delegation = this.delegations.max(),
+            delegates = delegation.delegates
         if (delegates.length) {
             var buckets = delegation.buckets.slice()
             var redist = Array.apply(null, Array(delegates.length)).map(Number.prototype.valueOf, 0)
@@ -76,10 +76,10 @@ Aplomb.prototype.removeDelegate = function (delegate) {
 
     var delegation = this.delegations.max()
     if (delegation.delegates.length > 1) {
-        var delegates = delegation.delegates.slice()
-        var buckets = delegation.buckets.slice()
+        var delegates = delegation.delegates.slice(),
+            buckets = delegation.buckets.slice(),
+            index = delegates.indexOf(delegate)
 
-        var index = delegates.indexOf(delegate)
         assert(~index, 'index not found')
         delegates.splice(index, 1)
 
