@@ -44,13 +44,13 @@ Aplomb.prototype.addDelegate = function (delegate) {
         var delegation = this.delegations.max(),
             delegates = delegation.delegates
         if (delegates.length) {
-            var buckets = delegation.buckets.slice()
-            var redist = Array.apply(null, Array(delegates.length)).map(Number.prototype.valueOf, 0)
+            var buckets = delegation.buckets.slice(),
+                redist = Array.apply(null, Array(delegates.length)).map(Number.prototype.valueOf, 0)
 
             delegates.push(delegate)
 
-            var total = Math.ceil(buckets.length / delegates.length)
-            var each = Math.ceil(total / (delegates.length - 1))
+            var total = Math.ceil(buckets.length / delegates.length),
+                each = Math.ceil(total / (delegates.length - 1))
 
             for (var b = 0, I = buckets.length; b < I && total; b++) {
                 if (redist[delegates.indexOf(buckets[b])] == each) {
@@ -96,8 +96,8 @@ Aplomb.prototype.removeDelegate = function (delegate) {
 }
 
 Aplomb.prototype.replaceDelegate = function (oldDelegate, newDelegate) {
-    var delegation = this.delegations.max()
-    var buckets = delegation.buckets.slice()
+    var delegation = this.delegations.max(),
+        buckets = delegation.buckets.slice()
 
     var delegates = delegation.delegates.map(function (delegate) {
         return delegate == oldDelegate ? newDelegate : delegate
@@ -114,9 +114,11 @@ Aplomb.prototype.replaceDelegate = function (oldDelegate, newDelegate) {
 
 Aplomb.prototype.getDelegations = function () {
     var delegations = []
+
     this.delegations.reach(function (delegation) {
         delegations.push(delegation)
     })
+
     return delegations
 }
 
