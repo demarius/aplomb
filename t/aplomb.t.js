@@ -170,13 +170,6 @@ function prove(assert) {
             delegates: [ '127.0.0.1:8081', '127.0.0.1:8082', '127.0.0.1:8080' ]
         }, 'three delegates')
     aplomb.addDelegation(8, delegation)
-    console.log(aplomb.getIndex({ user: 'u', password: 'd' }))
-    console.log(aplomb.getIndex({ user: 'u', password: 'c' }))
-    console.log(aplomb.getIndex({ user: 'u', password: 'g' }))
-    console.log(aplomb.getIndex({ user: 'u', password: 'b' }))
-    console.log(aplomb.getIndex({ user: 'u', password: 'a' }))
-    console.log(aplomb.getIndex({ user: 'u', password: 'e' }))
-    console.log(aplomb.getIndex({ user: 'u', password: 'i' }))
 
     aplomb.addConnection(6, { user: 'u', password: 'd' })
     assert(aplomb.getConnection({ user: 'u', password: 'd' }), { user: 'u', password: 'd' }, 'find')
