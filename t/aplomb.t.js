@@ -1,4 +1,4 @@
-require('proof')(26, prove)
+require('proof')(28, prove)
 
 function prove(assert) {
     var Aplomb = require('..')
@@ -231,4 +231,33 @@ function prove(assert) {
         }
 
     assert(aplomb.getConnectionCount(6), 0, 'connection set removed')
+
+    assert(aplomb.addDelegate(9, '127.0.0.1:8080'), {
+            key: 9,
+            enacted: false,
+            buckets: [
+                        '127.0.0.1:8080',
+                        '127.0.0.1:8080',
+                        '127.0.0.1:8082',
+                        '127.0.0.1:8082',
+                        '127.0.0.1:8080',
+                        '127.0.0.1:8081',
+                        '127.0.0.1:8081'
+                    ],
+            delegates: [ '127.0.0.1:8081', '127.0.0.1:8082', '127.0.0.1:8080' ]
+        }, 'add delegation already exists')
+    assert(aplomb.removeDelegate(9, '127.0.0.1:8083'), {
+            key: 9,
+            enacted: false,
+            buckets: [
+                        '127.0.0.1:8080',
+                        '127.0.0.1:8080',
+                        '127.0.0.1:8082',
+                        '127.0.0.1:8082',
+                        '127.0.0.1:8080',
+                        '127.0.0.1:8081',
+                        '127.0.0.1:8081'
+                    ],
+            delegates: [ '127.0.0.1:8081', '127.0.0.1:8082', '127.0.0.1:8080' ]
+        }, 'remove delegation does not exist')
 }
