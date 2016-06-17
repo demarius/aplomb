@@ -12,6 +12,10 @@ function Aplomb (options) {
     function compare (a, b) { return options.compare(a.key, b.key) }
 }
 
+Aplomb.prototype.max = function () {
+    return this.delegations.max()
+}
+
 Aplomb.prototype.getIndex = function (connection) {
     var key = this.extract(connection),
         hash = fnv(0, new Buffer(key), 0, Buffer.byteLength(key))
@@ -32,14 +36,16 @@ Aplomb.prototype.getDelegates = function (connection) {
 }
 
 Aplomb.prototype.getDelegate = function (connection) {
-    var delegation = this.delegations.max()
-    if (delegation == null || delegation.delegates.length == 0) {
-        return null
+    var delegations = this.delegations.iterator(), delegation
+    while (delegation = delegations.prev()) {
+        if (delegation.enacted) {
+            break
+        }
     }
     return delegation.buckets[this.getIndex(connection)]
 }
 
-Aplomb.prototype.addDelegate = function (delegate) {
+Aplomb.prototype.addDelegate = function (key, delegate) {
     if (this.delegations.size) {
         var delegation = this.delegations.max(),
             delegates = delegation.delegates
@@ -61,17 +67,19 @@ Aplomb.prototype.addDelegate = function (delegate) {
                 total--
             }
 
-            return { buckets: buckets, delegates: delegates }
+            return { key: key, enacted: false, buckets: buckets, delegates: delegates }
         }
     }
 
     return {
+        key: key,
+        enacted: false,
         buckets: Array.apply(null, Array(this.bucketCount)).map(String.prototype.toString, delegate),
         delegates: [ delegate ]
     }
 }
 
-Aplomb.prototype.removeDelegate = function (delegate) {
+Aplomb.prototype.removeDelegate = function (key, delegate) {
     assert(this.delegations.size)
 
     var delegation = this.delegations.max()
@@ -89,13 +97,13 @@ Aplomb.prototype.removeDelegate = function (delegate) {
             }
         }
 
-        return { buckets: buckets, delegates: delegates }
+        return { key: key, enacted: false, buckets: buckets, delegates: delegates }
     }
 
-    return { buckets: null, delegates: [] }
+    return { key: key, enacted: false, buckets: null, delegates: [] }
 }
 
-Aplomb.prototype.replaceDelegate = function (oldDelegate, newDelegate) {
+Aplomb.prototype.replaceDelegate = function (key, oldDelegate, newDelegate) {
     var delegation = this.delegations.max(),
         buckets = delegation.buckets.slice()
 
@@ -109,7 +117,7 @@ Aplomb.prototype.replaceDelegate = function (oldDelegate, newDelegate) {
         }
     }
 
-    return { buckets: buckets, delegates: delegates }
+    return { key: key, enacted: false, buckets: buckets, delegates: delegates }
 }
 
 Aplomb.prototype.getDelegations = function () {
@@ -122,12 +130,8 @@ Aplomb.prototype.getDelegations = function () {
     return delegations
 }
 
-Aplomb.prototype.addDelegation = function (key, delegation) {
-    this.delegations.insert({
-        key: key,
-        buckets: delegation.buckets,
-        delegates: delegation.delegates
-    })
+Aplomb.prototype.addDelegation = function (delegation) {
+    this.delegations.insert(delegation)
 }
 
 Aplomb.prototype.removeDelegation = function (key) {
