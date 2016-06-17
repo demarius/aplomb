@@ -1,4 +1,4 @@
-require('proof')(22, prove)
+require('proof')(25, prove)
 
 function prove(assert) {
     var Aplomb = require('..')
@@ -170,6 +170,13 @@ function prove(assert) {
             delegates: [ '127.0.0.1:8081', '127.0.0.1:8082', '127.0.0.1:8080' ]
         }, 'three delegates')
     aplomb.addDelegation(8, delegation)
+    console.log(aplomb.getIndex({ user: 'u', password: 'd' }))
+    console.log(aplomb.getIndex({ user: 'u', password: 'c' }))
+    console.log(aplomb.getIndex({ user: 'u', password: 'g' }))
+    console.log(aplomb.getIndex({ user: 'u', password: 'b' }))
+    console.log(aplomb.getIndex({ user: 'u', password: 'a' }))
+    console.log(aplomb.getIndex({ user: 'u', password: 'e' }))
+    console.log(aplomb.getIndex({ user: 'u', password: 'i' }))
 
     aplomb.addConnection(6, { user: 'u', password: 'd' })
     assert(aplomb.getConnection({ user: 'u', password: 'd' }), { user: 'u', password: 'd' }, 'find')
@@ -180,9 +187,23 @@ function prove(assert) {
     aplomb.removeConnection({ user: 'u', password: 'd' })
     assert(aplomb.getConnection({ user: 'u', password: 'd' }), null, 'not found again')
     aplomb.addConnection(6, { user: 'u', password: 'd' })
+    aplomb.addConnection(6, { user: 'u', password: 'c' })
 
-    var connection
-    while (connection = aplomb.evictable('127.0.0.1:8080')) {
-            aplomb.removeConnection(connection)
+    assert(aplomb.getConnectionCount(6), 3, 'get connection count')
+
+    var eviction
+    while (eviction = aplomb.evictable('127.0.0.1:8080')) {
+            switch (eviction.type) {
+                    case 'connection':
+                        aplomb.removeConnection(eviction.connection)
+                        break
+                    case 'delegation':
+                        assert(aplomb.getConnectionCount(6), 0, 'connections removed')
+                        aplomb.removeDelegation(eviction.key)
+                        aplomb.removeConnectionSet(eviction.key)
+                        break
+                    }
         }
+
+    assert(aplomb.getConnectionCount(6), 0, 'connection set removed')
 }

@@ -150,15 +150,29 @@ Aplomb.prototype.addConnection = function (key, connection) {
     tree.connections.insert(connection)
 }
 
+Aplomb.prototype.getConnectionCount = function (key) {
+    var version = this.connections.find({ key: key })
+    return version ? version.connections.size : 0
+}
+
+Aplomb.prototype.removeConnectionSet = function (key) {
+    return !! this.connections.remove({ key: key })
+}
+
 Aplomb.prototype.removeConnection = function (connection) {
-    var tree, iterator = this.connections.iterator()
+    var tree, iterator = this.connections.iterator(), found = false
 
     while (tree = iterator.prev()) {
+        /*
         tree.connections.remove(connection)
         if (tree.connections.size == 0) {
             this.connections.remove(tree)
         }
+        */
+        found = !! tree.connections.remove(connection) || false
     }
+
+    return found
 }
 
 Aplomb.prototype.getConnection = function (connection) {
@@ -179,16 +193,19 @@ Aplomb.prototype.evictable = function (delegate) {
     var compare = this.compare
     var latest = this.delegations.max()
     var iterator = this.connections.iterator()
-    while (((tree = iterator.next()) != null) && compare(tree.key, latest.key) != 0) {
-        while (tree.connections.size > 0) {
+
+    if (((tree = iterator.next()) != null) && compare(tree.key, latest.key) != 0) {
+        while (tree.connections.size != 0) {
             var connection = tree.connections.min()
             if (this.getDelegate(connection) == delegate) {
                 tree.connections.remove(connection)
                 this.addConnection(latest.key, connection)
             } else {
-                return connection
+                return { type: 'connection', connection: connection }
             }
         }
+
+        return { type: 'delegation', key: tree.key }
     }
 
     return null
