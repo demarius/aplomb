@@ -1,4 +1,4 @@
-require('proof')(28, prove)
+require('proof')(29, prove)
 
 function prove(assert) {
     var Aplomb = require('..')
@@ -218,6 +218,7 @@ function prove(assert) {
 
     var eviction
     while (eviction = aplomb.evictable('127.0.0.1:8080')) {
+        console.log(eviction)
             switch (eviction.type) {
                     case 'connection':
                         aplomb.removeConnection(eviction.connection)

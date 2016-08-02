@@ -164,25 +164,40 @@ Aplomb.prototype.getDelegations = function () {
 
 Aplomb.prototype.addDelegation = function (delegation) {
     this.delegations.insert(delegation)
+
+    this.connections.insert({
+        key: delegation.key,
+        connections: new RBTree(function (a, b) {
+            a = this.extract(a)
+            b = this.extract(b)
+            return a < b ? -1 : a > b ? 1 : 0
+        }.bind(this))
+    })
 }
 
 Aplomb.prototype.removeDelegation = function (key) {
+    this.connections.remove({ key: key })
     return this.delegations.remove({ key: key })
 }
 
 Aplomb.prototype.addConnection = function (key, connection) {
     var tree = this.connections.find({ key: key })
-        if (tree == null) {
-            tree = {
-                key: key,
-                connections: new RBTree(function (a, b) {
-                    a = this.extract(a)
-                    b = this.extract(b)
-                    return a < b ? -1 : a > b ? 1 : 0
-                }.bind(this))
-            }
-            this.connections.insert(tree)
+
+    /*
+     * Crash if no tree
+    if (tree == null) {
+        tree = {
+            key: key,
+            connections: new RBTree(function (a, b) {
+                a = this.extract(a)
+                b = this.extract(b)
+                return a < b ? -1 : a > b ? 1 : 0
+            }.bind(this))
         }
+        this.connections.insert(tree)
+    }
+
+    */
     tree.connections.insert(connection)
 }
 
