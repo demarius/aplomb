@@ -16,6 +16,22 @@ Aplomb.prototype.max = function () {
     return this.delegations.max()
 }
 
+Aplomb.prototype.getEnactedDelegation = function () {
+    var delegations = this.delegations.iterator(), delegation
+
+    while (delegation = delegations.prev()) {
+        if (delegation.enacted) {
+            break
+        }
+    }
+
+    if (delegation == null || delegation.delegates.length == 0) {
+        return null
+    }
+
+    return delegation
+}
+
 Aplomb.prototype.getIndex = function (connection) {
     var key = this.extract(connection)
     var hash = fnv(0, new Buffer(key), 0, Buffer.byteLength(key))
@@ -41,21 +57,10 @@ Aplomb.prototype.getDelegates = function (connection) {
 }
 
 Aplomb.prototype.getDelegate = function (connection) {
-    var delegations = this.delegations.iterator(), delegation
-
-    while (delegation = delegations.prev()) {
-        if (delegation.enacted) {
-            break
-        }
-    }
-
-    if (delegation == null || delegation.delegates.length == 0) {
-        return null
-    }
-
+    var delegation = this.getEnactedDelegation()
     var index = this.getIndex(connection)
 
-    return delegation.buckets[index]
+    return delegation ? delegation.buckets[index] : null
 }
 
 Aplomb.prototype.addDelegate = function (key, delegate) {
@@ -236,7 +241,7 @@ Aplomb.prototype.evictable = function (delegate) {
     var tree
 
     var compare = this.compare
-    var latest = this.delegations.max()
+    var latest = this.getEnactedDelegation()
     var iterator = this.connections.iterator()
 
     if (((tree = iterator.next()) != null) && compare(tree.key, latest.key) != 0) {
