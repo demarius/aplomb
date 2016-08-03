@@ -238,10 +238,11 @@ Aplomb.prototype.getConnection = function (connection) {
 }
 
 Aplomb.prototype.evictable = function (delegate) {
-    var tree
-
-    var compare = this.compare
     var latest = this.getEnactedDelegation()
+    if (!latest) return null
+
+    var tree
+    var compare = this.compare
     var iterator = this.connections.iterator()
 
     if (((tree = iterator.next()) != null) && compare(tree.key, latest.key) != 0) {

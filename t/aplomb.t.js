@@ -1,4 +1,4 @@
-require('proof')(29, prove)
+require('proof')(30, prove)
 
 function prove(assert) {
     var Aplomb = require('..')
@@ -33,6 +33,7 @@ function prove(assert) {
     aplomb.addDelegation(delegation)
 
     assert(aplomb.getDelegate({ user: 'a', password: 'p' }), null, 'get delegate not enacted')
+    assert(aplomb.evictable(''), null, 'evictable no enacted delegation')
     delegation.enacted = true
     assert(aplomb.getDelegate({ user: 'a', password: 'p' }), '127.0.0.1:8080', 'get delegate')
 
