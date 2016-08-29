@@ -1,5 +1,4 @@
-Load balancer with configurable scheduling and balancing.
-
+Balance connections across sharded buckets.
 
 ### Usage:
 
