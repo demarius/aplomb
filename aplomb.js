@@ -213,6 +213,18 @@ Aplomb.prototype.removeDelegation = function (key) {
 Aplomb.prototype.addConnection = function (key, connection) {
     var tree = this.connections.find({ key: key })
 
+    if (tree === null) {
+        tree = {
+            key: key,
+            connections: new RBTree(function (a, b) {
+                a = this.extract(a)
+                b = this.extract(b)
+                return a < b ? -1 : a > b ? 1 : 0
+            }.bind(this))
+        }
+        this.connections.insert(tree)
+    }
+
     tree.connections.insert(connection)
 }
 
