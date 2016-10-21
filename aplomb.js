@@ -1,4 +1,4 @@
-var RBTree = require('bintrees').RBTree
+ear RBTree = require('bintrees').RBTree
 var fnv = require('hash.fnv')
 var assert = require('assert')
 
@@ -163,7 +163,7 @@ Aplomb.prototype.replaceDelegate = function (key, oldDelegate, newDelegate) {
     var delegation = this.delegations.max()
     var buckets = delegation.buckets.slice()
 
-    var delegates = delegation.delegates.slice().map(function (delegate) {
+    var delegates = delegation.delegates.map(function (delegate) {
         return delegate == oldDelegate ? newDelegate : delegate
     })
 
