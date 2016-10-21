@@ -1,4 +1,4 @@
-ear RBTree = require('bintrees').RBTree
+var RBTree = require('bintrees').RBTree
 var fnv = require('hash.fnv')
 var assert = require('assert')
 
