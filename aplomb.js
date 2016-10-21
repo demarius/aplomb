@@ -67,7 +67,7 @@ Aplomb.prototype.addDelegate = function (key, delegate) {
     if (this.delegations.size) {
 
         var delegation = this.delegations.max()
-        var delegates = delegation.delegates
+        var delegates = delegation.delegates.slice()
 
         if (~delegates.indexOf(delegate)) {
             return {
@@ -163,7 +163,7 @@ Aplomb.prototype.replaceDelegate = function (key, oldDelegate, newDelegate) {
     var delegation = this.delegations.max()
     var buckets = delegation.buckets.slice()
 
-    var delegates = delegation.delegates.map(function (delegate) {
+    var delegates = delegation.delegates.slice().map(function (delegate) {
         return delegate == oldDelegate ? newDelegate : delegate
     })
 
