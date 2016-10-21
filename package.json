@@ -2,7 +2,7 @@
   "name": "aplomb",
   "description": "configurable scheduling and balancing for Node.js.",
   "author": "Demarius Chrite",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "aplomb.js",
   "scripts": {
     "test": "proof platform win32 && proof test t/*/*.t.js || t/test"
