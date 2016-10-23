@@ -1,4 +1,4 @@
-require('proof')(3, function (assert) {
+require('proof')(2, function (assert) {
     var Aplomb = require('..')
 
     var aplomb = new Aplomb({
@@ -27,8 +27,6 @@ require('proof')(3, function (assert) {
         }, 'add delegate')
 
     aplomb.addDelegation(delegation)
-
-    assert(aplomb.evictable(''), null, 'evictable no enacted delegation')
 
     delegation.enacted = true
 
