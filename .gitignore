@@ -1,3 +1,6 @@
 /node_modules
 /coverage
 .proof.out
+.DS_Store
+*.swp
+*.patch
