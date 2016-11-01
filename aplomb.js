@@ -89,9 +89,9 @@ Aplomb.prototype.addDelegate = function (key, delegate) {
             var each = Math.ceil(total / (delegates.length - 1))
 
             for (var b = 0, I = buckets.length; b < I && total; b++) {
+                redist[delegates.indexOf(buckets[b])]++
                 if (redist[delegates.indexOf(buckets[b])] == each) continue
 
-                redist[delegates.indexOf(buckets[b])]++
                 buckets[b] = delegate
                 total--
             }
