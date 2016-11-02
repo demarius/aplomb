@@ -39,6 +39,22 @@ Aplomb.prototype.getIndex = function (connection) {
     return hash % this.bucketCount
 }
 
+Aplomb.prototype._distribute = function (delegates, count) {
+    var block, buckets = [],
+        remainder = count % delegates.length
+
+    for (var i = 0, I = delegates.length; i < I; i++) {
+        block = Math.floor(count / delegates.length) +
+            (Math.max(0, remainder--) ? 1 : 0)
+
+        for (var j = 0; j < block; j++) {
+            buckets.push(delegates[i])
+        }
+    }
+
+    return buckets
+}
+
 Aplomb.prototype.getDelegates = function (connection) {
     var key = this.extract(connection)
     var hash = fnv(0, new Buffer(key), 0, Buffer.byteLength(key))
@@ -79,35 +95,12 @@ Aplomb.prototype.addDelegate = function (key, delegate) {
         }
 
         if (delegates.length) {
-            var buckets = delegation.buckets.slice()
-            var redist = Array.apply(null, Array(delegates.length))
-                         .map(Number.prototype.valueOf, 0)
-
             delegates.push(delegate)
-
-            var total = Math.ceil(buckets.length / delegates.length)
-            var each = Math.ceil(total / (delegates.length - 1))
-
-            /*
-            for (var b = 0, I = buckets.length; b < I && total; b++) {
-                redist[delegates.indexOf(buckets[b])]++
-                if (redist[delegates.indexOf(buckets[b])] == each) continue
-
-                buckets[b] = delegate
-                total--
-            }*/
-	    var block, remainder = this.bucketCount % delegates.length, k = 0
-	    for (var i = 0, I = delegates.length; i < I; i++) {
-		block = Math.floor(this.bucketCount / delegates.length) + (Math.max(0, remainder--) ? 1 : 0)
-		for (var j = 0; j < block; j++) {
-		    buckets[k++] = delegates[i]
-		}
-	    }
 
             return {
                 key: key,
                 enacted: false,
-                buckets: buckets,
+                buckets: this._distribute(delegates, this.bucketCount),
                 delegates: delegates
             }
         }
