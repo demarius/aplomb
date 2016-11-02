@@ -25,7 +25,7 @@ Aplomb.prototype.getEnactedDelegation = function () {
         }
     }
 
-    if (delegation == null || delegation.delegates.length == 0) {
+    if (delegation === null || delegation.delegates.length === 0) {
         return null
     }
 
@@ -276,9 +276,9 @@ Aplomb.prototype.evictable = function (delegate) {
     var compare = this.compare
     var iterator = this.connections.iterator()
 
-    if (((tree = iterator.next()) != null) &&
-        compare(tree.key, latest.key) != 0) {
-        while (tree.connections.size != 0) {
+    if (((tree = iterator.next()) !== null) &&
+        compare(tree.key, latest.key) !== 0) {
+        while (tree.connections.size !== 0) {
             var connection = tree.connections.min()
 
             if (this.getDelegate(connection) == delegate) {
