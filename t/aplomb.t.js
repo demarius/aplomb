@@ -1,4 +1,4 @@
-require('proof')(8, prove)
+require('proof')(9, prove)
 
 function prove(assert) {
     var Aplomb = require('..')
@@ -141,4 +141,6 @@ function prove(assert) {
     ], 'buckets')
 
     //console.log(aplomb.max())
+    //
+    assert(Aplomb.prototype._distribute([ 1, 2, 3, 4 ], 12), [ 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4 ], 'distribute')
 }
