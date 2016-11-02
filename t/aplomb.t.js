@@ -1,4 +1,4 @@
-require('proof')(6, prove)
+require('proof')(8, prove)
 
 function prove(assert) {
     var Aplomb = require('..')
@@ -264,23 +264,101 @@ function prove(assert) {
 
     */
     aplomb.bucketCount = 27
-    for (var l = 0; l < 8; l++) {
-        delegation = aplomb.addDelegate(9 + l, '127.0.0.1:808' + l)
+    var delegate
+    console.log('delegates: ', aplomb.max().delegates)
+    for (var l = 2; l < 8; l++) {
+        delegate =  '127.0.0.1:808' + l
+        console.log('adding: ', delegate)
+        delegation = aplomb.addDelegate(9 + l, delegate)
         aplomb.addDelegation(delegation)
+        delegation.enacted = true
     }
+    console.log('delegates: ', aplomb.max().delegates)
 
-    delegation.enacted = true
-    max = aplomb.max()
-    buckets = max.buckets
+    var max = aplomb.max(), buckets = max.buckets,
+        unique = buckets.filter(function (bucket, i, set) {
+        return (set.indexOf(bucket) == i)
+    })
     console.log('buckets: ', buckets.length)
     assert(buckets.length, 27, 'extra buckets distributed')
 
-    unique = buckets.filter(function (bucket, i, set) {
+
+    assert(unique.length, 8, 'Delegates distributed evenly')
+
+    console.log('unique items:', unique)
+    //console.log(max)
+
+    aplomb.bucketCount = 50;
+
+    for (l = 8; l < 13; l++) {
+        delegation = aplomb.addDelegate(9 + l, '127.0.0.1:808' + l)
+        aplomb.addDelegation(delegation)
+        delegation.enacted = true
+    }
+    max = aplomb.max(), buckets = max.buckets,
+        unique = buckets.filter(function (bucket, i, set) {
         return (set.indexOf(bucket) == i)
     })
 
-    //assert(unique.length, 8,
+    console.log('unique/delegates: ', unique)
+    assert(buckets.length, 50, 'extra buckets distributed')
+    assert(unique.length, 12, 'Delegates distributed evenly')
+    assert(buckets, [
+	'127.0.0.1:8080',
+	'127.0.0.1:8080',
+	'127.0.0.1:8080',
+	'127.0.0.1:8080',
+	'127.0.0.1:8080',
+        '127.0.0.1:8081',
+        '127.0.0.1:8081',
+        '127.0.0.1:8081',
+        '127.0.0.1:8081',
+        '127.0.0.1:8081',
+        '127.0.0.1:8082',
+        '127.0.0.1:8082',
+        '127.0.0.1:8082',
+        '127.0.0.1:8082',
+        '127.0.0.1:8083',
+        '127.0.0.1:8083',
+        '127.0.0.1:8083',
+        '127.0.0.1:8083',
+        '127.0.0.1:8084',
+        '127.0.0.1:8084',
+        '127.0.0.1:8084',
+        '127.0.0.1:8084',
+        '127.0.0.1:8085',
+        '127.0.0.1:8085',
+        '127.0.0.1:8085',
+        '127.0.0.1:8085',
+        '127.0.0.1:8086',
+        '127.0.0.1:8086',
+        '127.0.0.1:8086',
+        '127.0.0.1:8086',
+        '127.0.0.1:8087',
+        '127.0.0.1:8087',
+        '127.0.0.1:8087',
+        '127.0.0.1:8087',
+        '127.0.0.1:8088',
+        '127.0.0.1:8088',
+        '127.0.0.1:8088',
+        '127.0.0.1:8088',
+        '127.0.0.1:8089',
+        '127.0.0.1:8089',
+        '127.0.0.1:8089',
+        '127.0.0.1:8089',
+        '127.0.0.1:80810',
+        '127.0.0.1:80810',
+        '127.0.0.1:80810',
+        '127.0.0.1:80810',
+        '127.0.0.1:80811',
+        '127.0.0.1:80811',
+        '127.0.0.1:80811',
+        '127.0.0.1:80811',
+        '127.0.0.1:80812',
+        '127.0.0.1:80812',
+        '127.0.0.1:80812',
+        '127.0.0.1:80812'
+    ], 'buckets')
 
-    console.log('unique items:', unique)
-    console.log(max)
+    //console.log(aplomb.max())
 }
