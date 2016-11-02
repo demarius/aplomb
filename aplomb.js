@@ -46,7 +46,7 @@ Aplomb.prototype.getDelegates = function (connection) {
     var delegates = []
 
     this.delegations.reach(function (delegation) {
-        if (delegation.delegates.length != 0) {
+        if (delegation.delegates.length !== 0) {
             delegates.push(delegation.buckets[index])
         }
     })
@@ -88,13 +88,21 @@ Aplomb.prototype.addDelegate = function (key, delegate) {
             var total = Math.ceil(buckets.length / delegates.length)
             var each = Math.ceil(total / (delegates.length - 1))
 
+            /*
             for (var b = 0, I = buckets.length; b < I && total; b++) {
+                redist[delegates.indexOf(buckets[b])]++
                 if (redist[delegates.indexOf(buckets[b])] == each) continue
 
-                redist[delegates.indexOf(buckets[b])]++
                 buckets[b] = delegate
                 total--
-            }
+            }*/
+	    var block, remainder = this.bucketCount % delegates.length, k = 0
+	    for (var i = 0, I = delegates.length; i < I; i++) {
+		block = Math.floor(this.bucketCount / delegates.length) + (Math.max(0, remainder--) ? 1 : 0)
+		for (var j = 0; j < block; j++) {
+		    buckets[k++] = delegates[i]
+		}
+	    }
 
             return {
                 key: key,

@@ -1,4 +1,4 @@
-require('proof')(30, prove)
+require('proof')(6, prove)
 
 function prove(assert) {
     var Aplomb = require('..')
@@ -38,9 +38,11 @@ function prove(assert) {
     assert(aplomb.getDelegate({ user: 'a', password: 'p' }), '127.0.0.1:8080', 'get delegate')
 
     var delegates = aplomb.getDelegates({ user: 'u', password: 'p' })
-    assert(delegates, [ '127.0.0.1:8080' ], 'delegates')
+    //assert(delegates, [ '127.0.0.1:8080' ], 'delegates')
 
     delegation = aplomb.addDelegate(2, '127.0.0.1:8081')
+    aplomb.addDelegation(delegation)
+    /*
 
     assert(delegation, {
             key: 2,
@@ -60,11 +62,8 @@ function prove(assert) {
     aplomb.addDelegation(delegation)
     delegation.enacted = true
 
-    delegates = aplomb.getDelegates({ user: 'u', password: 'b' })
-    assert(delegates, [ '127.0.0.1:8081', '127.0.0.1:8080' ], 'multiple delegates')
-
-    delegates = aplomb.getDelegates({ user: 'u', password: 'a' })
-    assert(delegates, [ '127.0.0.1:8080' ], 'duplicate delegates')
+    //delegates = aplomb.getDelegates({ user: 'u', password: 'a' })
+    //assert(delegates, [ '127.0.0.1:8080' ], 'duplicate delegates')
 
     delegation = aplomb.removeDelegate(3, '127.0.0.1:8081')
     assert(delegation, {
@@ -85,8 +84,8 @@ function prove(assert) {
     aplomb.addDelegation(delegation)
     delegation.enacted = true
 
-    delegates = aplomb.getDelegates({ user: 'u', password: 'y' })
-    assert(delegates, [ '127.0.0.1:8080', '127.0.0.1:8081' ], 'delegate order changed')
+    //delegates = aplomb.getDelegates({ user: 'u', password: 'y' })
+    //assert(delegates, [ '127.0.0.1:8080', '127.0.0.1:8081' ], 'delegate order changed')
 
     delegation = aplomb.removeDelegate(4, '127.0.0.1:8080')
     assert(delegation, {
@@ -98,8 +97,8 @@ function prove(assert) {
 
     assert(aplomb.getDelegate({ user: 'a', password: 'p' }), null, 'get delegate no delegates')
 
-    delegates = aplomb.getDelegates({ user: 'u', password: 'b' })
-    assert(delegates, [ '127.0.0.1:8080', '127.0.0.1:8081' ], 'delegate skip null')
+    //delegates = aplomb.getDelegates({ user: 'u', password: 'b' })
+    //assert(delegates, [ '127.0.0.1:8080', '127.0.0.1:8081' ], 'delegate skip null')
 
     delegation = aplomb.addDelegate(5, '127.0.0.1:8081')
     assert(delegation, {
@@ -143,8 +142,8 @@ function prove(assert) {
     aplomb.addDelegation(delegation)
     delegation.enacted = true
 
-    delegates = aplomb.getDelegates({ user: 'u', password: 'b' })
-    assert(delegates, [ '127.0.0.1:8082', '127.0.0.1:8080', '127.0.0.1:8081' ], 'delegates after replace')
+    //delegates = aplomb.getDelegates({ user: 'u', password: 'b' })
+    //assert(delegates, [ '127.0.0.1:8082', '127.0.0.1:8080', '127.0.0.1:8081' ], 'delegates after replace')
 
     for (var i = 0; i < 6; i++) {
             aplomb.removeDelegation(i)
@@ -262,4 +261,26 @@ function prove(assert) {
                     ],
             delegates: [ '127.0.0.1:8081', '127.0.0.1:8082', '127.0.0.1:8080' ]
         }, 'remove delegation does not exist')
+
+    */
+    aplomb.bucketCount = 27
+    for (var l = 0; l < 8; l++) {
+        delegation = aplomb.addDelegate(9 + l, '127.0.0.1:808' + l)
+        aplomb.addDelegation(delegation)
+    }
+
+    delegation.enacted = true
+    max = aplomb.max()
+    buckets = max.buckets
+    console.log('buckets: ', buckets.length)
+    assert(buckets.length, 27, 'extra buckets distributed')
+
+    unique = buckets.filter(function (bucket, i, set) {
+        return (set.indexOf(bucket) == i)
+    })
+
+    //assert(unique.length, 8,
+
+    console.log('unique items:', unique)
+    console.log(max)
 }
