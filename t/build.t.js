@@ -1,4 +1,4 @@
-require('proof')(2, prove)
+require('proof')(3, prove)
 
 function prove (assert) {
     var Aplomb = require('..'),
@@ -27,5 +27,13 @@ function prove (assert) {
 	enacted: false,
 	buckets: [ 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0 ],
 	delegates: [ '127.0.0.1:8081', '127.0.0.1:8082' ]
-    }, 'subsequent delegation')
+    }, 'second delegation')
+
+    var third = aplomb.createDelegation(3, '127.0.0.1:8083', second)
+    assert(third, {
+	key: 1,
+	enacted: false,
+	buckets: [ 0, 0, 0, 1, 1, 1, 2, 2, 2, 0, 0, 0 ],
+	delegates: [ '127.0.0.1:8081', '127.0.0.1:8082', '127.0.0.1:8083']
+    }, 'third delegation')
 }

@@ -37,17 +37,17 @@ Aplomb.prototype.createDelegation = function (key, delegate, delegation) {
     var buckets = [], delegates = [ delegate ]
 
     if (delegation) {
-        var offset = this.delegateCount - delegates.length
-
-        delegates = delegation.delegates.slice()
+        var offset, delegates = delegation.delegates.slice()
         delegates.push(delegate)
+
+        offset = this.delegateCount - delegates.length
 
         buckets = delegates.map(function (_, i) {
             return i
         })
 
         buckets = buckets.concat(Array.apply(null, Array(offset))
-                          .map(Number.prototype.valueOf, 0))
+            .map(Number.prototype.valueOf, 0))
 
         return {
             key: delegation.key,
