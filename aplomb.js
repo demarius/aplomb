@@ -10,6 +10,7 @@ function Aplomb (options) {
     this.connections = new RBTree(compare)
 
     function compare (a, b) { return options.compare(a.key, b.key) }
+    this.delegateCount = options.delegateCount || 0
 }
 
 Aplomb.prototype.max = function () {
@@ -32,12 +33,46 @@ Aplomb.prototype.getEnactedDelegation = function () {
     return delegation
 }
 
+Aplomb.prototype.createDelegation = function (key, delegate, delegation) {
+    var buckets = [], delegates = [ delegate ]
+
+    if (delegation) {
+        var offset = this.delegateCount - delegates.length
+
+        delegates = delegation.delegates.slice()
+        delegates.push(delegate)
+
+        buckets = delegates.map(function (_, i) {
+            return i
+        })
+
+        buckets = buckets.concat(Array.apply(null, Array(offset))
+                          .map(Number.prototype.valueOf, 0))
+
+        return {
+            key: delegation.key,
+            enacted: false,
+            buckets: this._distribute(buckets, this.bucketCount), 
+            delegates: delegates
+        }
+    }
+
+    return {
+        key: key,
+        enacted: false,
+        buckets: Array.apply(null, Array(this.bucketCount))
+                    .map(Number.prototype.valueOf, 0),
+        delegates: delegates
+    }
+}
+
 Aplomb.prototype.getIndex = function (connection) {
     var key = this.extract(connection)
     var hash = fnv(0, new Buffer(key), 0, Buffer.byteLength(key))
 
     return hash % this.bucketCount
 }
+
 
 Aplomb.prototype._distribute = function (delegates, count) {
     var block, buckets = [],
